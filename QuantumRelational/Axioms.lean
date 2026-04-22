@@ -1,0 +1,251 @@
+/-
+  QuantumRelational/Axioms.lean
+
+  Axiom 1 (Graded Equality / Distinguishability) and Axiom 2 (Saturation)
+  from "Quantum Mechanics from Finite Relational Structure".
+
+  These are the two foundational axioms from which all of quantum mechanics
+  is derived in the paper.
+
+  **Scope note (axiom formalization vs. paper):**
+
+  The paper's axioms (§3 / `sec:axioms`) have several named sub-components:
+
+    Axiom 1 (Finite Capacity with Saturation):
+      (1a) Existence: every basis has N elements
+      (1b)(i) Identity/injectivity: K(x,z) = K(y,z) ∀z ⟹ x = y
+      (1b)(ii) Completeness/surjectivity: every consistent K-profile is a state
+      (1b)(iii) Finite determinacy: finite separating set S
+      (1b)(iv) Structural Leibniz: K-symmetries of finite configs extend globally
+
+    Axiom 2 (Universal Relationality):
+      (2a) Operational Completeness: K(x,y) = 0 ⟹ x = y
+      (2b) Transport Consistency: meaningful DOFs are K-comparable
+      (2c) Basis Isotropy: symmetry group acts transitively on bases
+
+  This Lean formalization captures the components that enter the
+  mechanized proofs:
+    - `K_refl`, `K_symm` encode the kernel definition
+    - `K_ident` (in Axiom1) corresponds to paper (2a) Operational Completeness
+    - `completeness` (in Axiom2) corresponds to paper (1b)(i) Identity
+    - `saturation` (in Axiom2) is a basis-restricted form of paper (1b)(iii)
+
+  Components NOT axiomatized here but used in the paper's derivation:
+    - Paper (1b)(ii) Surjectivity: enters implicitly via the specific
+      instantiation of the state space (e.g., Fin N for the combinatorial
+      files, ℂP^(N-1) for the geometric files).
+    - Paper (1b)(iv) Structural Leibniz: the paper uses this to derive
+      Permutation Invariance (paper Thm `permutation-invariance`), which
+      drives cyclic dynamics. In Lean, the cyclic permutation is instantiated
+      directly via Mathlib's `finRotate N` in `CyclicEigen.lean`, so
+      Structural Leibniz enters as a specific concrete construction rather
+      than as a general extension axiom. The paper argues this construction
+      is forced by the axiom; the Lean does not prove the "forced" direction.
+    - Paper (2c) Basis Isotropy: the paper uses this (with Montgomery--Zippin)
+      to derive the Lie group structure of the symmetry group. In Lean, the
+      Lie/unitary structure enters via specific Mathlib instances (e.g.,
+      `UnitaryGroup`) rather than being derived from a transitivity axiom.
+
+  The Lean formalization therefore verifies the mathematical skeleton of
+  the derivation; the "these are the only axioms compatible with the
+  structural constraints" claim rests on arguments made in the paper prose
+  (particularly §3, §5) that are not separately formalized. See
+  Appendix `app:formal-verification` of the paper for the complete scope.
+-/
+import Mathlib.Topology.MetricSpace.Basic
+
+namespace QuantumRelational
+
+/-- **Definition 10: Distinguishability Space**
+A distinguishability space (𝒳, K) consists of a set 𝒳 equipped with a
+symmetric kernel K : 𝒳 × 𝒳 → [0,1] satisfying:
+  (i)   K(x,x) = 0              (reflexivity)
+  (ii)  K(x,y) = K(y,x)         (symmetry)
+  (iii) K(x,y) = 0 → x = y     (identity of indiscernibles)
+  (iv)  K(x,y) = 1 ↔ x,y perfectly distinguishable -/
+structure DistinguishabilitySpace (α : Type*) where
+  /-- The distinguishability kernel K : α × α → ℝ -/
+  K : α → α → ℝ
+  /-- K takes values in [0,1] -/
+  K_nonneg : ∀ (x y : α), 0 ≤ K x y
+  K_le_one : ∀ (x y : α), K x y ≤ 1
+  /-- K(x,x) = 0 (reflexivity) -/
+  K_refl : ∀ (x : α), K x x = 0
+  /-- K(x,y) = K(y,x) (symmetry) -/
+  K_symm : ∀ (x y : α), K x y = K y x
+  /-- K(x,y) = 0 → x = y (identity of indiscernibles) -/
+  K_ident : ∀ (x y : α), K x y = 0 → x = y
+
+/-- **Definition 12: Basis and Capacity**
+A basis ℬ is a maximal set of mutually perfectly distinguishable elements.
+The capacity N = |ℬ| is the cardinality of any basis. -/
+structure BasisStructure (α : Type*) extends DistinguishabilitySpace α where
+  /-- The capacity (dimension) N ≥ 2 -/
+  N : ℕ
+  N_ge_two : 2 ≤ N
+
+/-- **Axiom 1: Graded Equality (Distinguishability)**
+There exists a distinguishability kernel K satisfying the properties
+of Definition 10, with finite capacity N. This encodes the idea that
+physical systems have a relational, graded notion of equality rather
+than a binary one. -/
+structure Axiom1 (α : Type*) extends BasisStructure α where
+  /-- There exists a basis (maximal mutually distinguishable set) -/
+  basis : Fin N → α
+  /-- Basis elements are mutually perfectly distinguishable -/
+  basis_distinguishable : ∀ (i j : Fin N), i ≠ j → K (basis i) (basis j) = 1
+  -- Note: basis_self (K(b_i, b_i) = 0) is redundant with inherited K_refl.
+
+/-- **Axiom 2: Saturation (Completeness)**
+Every state is a complete probabilistic mixture over any basis.
+For any state x and basis ℬ, the values K(x, bₖ) collectively
+determine x up to gauge equivalence. There are no "hidden" degrees
+of freedom beyond what K encodes.
+
+Formally: the kernel K is *complete* — it captures all physically
+accessible information about the relational state.
+
+**Redundancy note:** The `completeness` field below is derivable from
+`K_ident` (inherited via `DistinguishabilitySpace`) together with
+`K_refl` and `K_symm`: from `(∀ z, K x z = K y z)`, specialize to z = x
+to get K x x = K y x; by K_refl the LHS is 0, so K y x = 0, hence
+K x y = 0 by K_symm, hence x = y by K_ident. The `completeness` field
+is retained for downstream API convenience (it is used directly in
+`Parsimony.lean`), but it carries no additional logical content beyond
+the base `DistinguishabilitySpace` axioms. The `saturation` field IS
+independent: it constrains states using only a FINITE separating set
+(the basis), whereas `completeness`/`K_ident` implicitly quantify over
+all states. -/
+structure Axiom2 (α : Type*) extends Axiom1 α where
+  /-- Completeness: K-equivalence implies physical identity.
+      If K(x, z) = K(y, z) for all z, then x and y are
+      physically identical. Derivable from K_ident + K_refl + K_symm;
+      kept as a named field for downstream API clarity. -/
+  completeness : ∀ (x y : α), (∀ (z : α), K x z = K y z) → x = y
+  /-- Saturation: the values {K(x, bₖ)} over a basis determine all
+      K-values K(x, y). Equivalently, K(x, ·) restricted to a basis
+      determines K(x, ·) on all of 𝒳. This is the finite-bandwidth
+      content of the paper's Axiom 1(1b)(iii) and is genuinely
+      independent of `completeness` (which quantifies over all of 𝒳). -/
+  saturation : ∀ (x y : α),
+    (∀ (i : Fin N), K x (basis i) = K y (basis i)) → x = y
+
+/-- The full axiom system: Axiom 1 + Axiom 2. -/
+abbrev FullAxioms (α : Type*) := Axiom2 α
+
+/-- **The `completeness` field is redundant (machine-checked derivation).**
+
+    Given a `DistinguishabilitySpace` (which carries `K_refl`, `K_symm`,
+    and `K_ident`), the `completeness` property `(∀ z, K x z = K y z) → x = y`
+    follows automatically. Specialize the premise to `z = x`: we get
+    `K x x = K y x`, hence `K y x = 0` by `K_refl`, hence `K x y = 0`
+    by `K_symm`, hence `x = y` by `K_ident`.
+
+    This theorem is a machine-checked witness that the `completeness`
+    field of `Axiom2` carries no additional logical content beyond the
+    base `DistinguishabilitySpace` axioms. The field is retained in the
+    `Axiom2` structure for downstream API convenience (it is used
+    directly in `Parsimony.lean` and `Basic.lean`), but could be
+    removed entirely with only cosmetic changes. -/
+theorem completeness_derived {α : Type*} (ax : DistinguishabilitySpace α) :
+    ∀ (x y : α), (∀ (z : α), ax.K x z = ax.K y z) → x = y := by
+  intro x y h
+  have hxx : ax.K x x = ax.K y x := h x
+  have hyx_zero : ax.K y x = 0 := by rw [← hxx]; exact ax.K_refl x
+  have hxy_zero : ax.K x y = 0 := by rw [ax.K_symm]; exact hyx_zero
+  exact ax.K_ident x y hxy_zero
+
+-- ============================================================
+-- Abstract Structural Leibniz (Paper Axiom 1(1b)(iv))
+-- ============================================================
+
+/-- **Definition: K-symmetry of a finite configuration.**
+
+    A permutation σ of the index set {0, ..., n-1} is a K-symmetry of
+    the configuration `cfg : Fin n → α` if it preserves all pairwise
+    K-values: K(cfg(σ(i)), cfg(σ(j))) = K(cfg(i), cfg(j)) for all i, j.
+
+    This captures the paper's notion: a relabeling of finitely many
+    states that leaves every distinguishability value unchanged.
+    The hypothesis of Structural Leibniz. -/
+def IsKSymmetry {α : Type*} (ax : DistinguishabilitySpace α)
+    {n : ℕ} (cfg : Fin n → α) (σ : Equiv.Perm (Fin n)) : Prop :=
+  ∀ (i j : Fin n), ax.K (cfg (σ i)) (cfg (σ j)) = ax.K (cfg i) (cfg j)
+
+/-- **Definition: K-preserving automorphism of the whole space.**
+
+    A bijection `g : α ≃ α` is a K-preserving automorphism if
+    K(g(x), g(y)) = K(x, y) for all x, y. -/
+def IsKAutomorphism {α : Type*} (ax : DistinguishabilitySpace α)
+    (g : α ≃ α) : Prop :=
+  ∀ (x y : α), ax.K (g x) (g y) = ax.K x y
+
+/-- **Axiom 3 (Structural Leibniz): K-symmetries of finite configurations
+    extend to global automorphisms.**
+
+    This is the paper's Axiom 1(1b)(iv), stated abstractly: for any
+    finite configuration admitting a K-symmetry σ, there exists a
+    global K-preserving automorphism g of the space such that g agrees
+    with σ on the configuration (i.e., g(cfg(i)) = cfg(σ(i)) for all i).
+
+    **Paper motivation (Remark `structural-leibniz-weight`):** A
+    K-symmetry that fails to extend globally would require structure
+    beyond K to obstruct it; in the ontology where K is exhaustive,
+    such structure does not exist, so every K-symmetry is genuine.
+
+    **Axiomatic status:** This is one of the strongest axioms in the
+    paper; it encodes a global extension property that is not automatic
+    in abstract metric spaces. We state it as a separate axiom (paper
+    statement); concrete instances (e.g., Fin N with the discrete
+    distinguishability kernel, `finRotate N` as the cyclic automorphism)
+    satisfy it via direct construction, which is how `CyclicEigen`
+    instantiates the paper's derivation in Lean. -/
+structure StructuralLeibniz {α : Type*} (ax : DistinguishabilitySpace α) : Prop where
+  /-- Every K-symmetry of a finite configuration extends to a global
+      K-preserving automorphism that agrees with the symmetry on the config. -/
+  extends_globally : ∀ {n : ℕ} (cfg : Fin n → α) (σ : Equiv.Perm (Fin n)),
+    IsKSymmetry ax cfg σ →
+    ∃ (g : α ≃ α), IsKAutomorphism ax g ∧ ∀ (i : Fin n), g (cfg i) = cfg (σ i)
+
+/-- **Permutation Invariance from Structural Leibniz (abstract version).**
+
+    Given Axiom 1 (which supplies a basis of `N` mutually distinguishable
+    elements with K(b_i, b_j) = 1 for i ≠ j and K(b_i, b_i) = 0) and
+    Structural Leibniz (which extends K-symmetries of finite configs to
+    global automorphisms), every permutation σ ∈ S_N acts as a
+    K-preserving automorphism of (α, K).
+
+    This is the paper's Theorem `permutation-invariance`, stated and
+    proved abstractly at the level of the axioms (without instantiating
+    a specific automorphism group). It is the source of cyclic dynamics
+    in the paper: the cyclic permutation `(0 1 2 ... N-1)` corresponds
+    to a global K-preserving automorphism whose action on the basis is
+    an N-cycle.
+
+    **Note:** The Lean formalization in `CyclicEigen` instantiates this
+    abstract conclusion for the concrete space `Fin N` via `finRotate N`.
+    The present theorem shows that the abstract derivation from the
+    axioms goes through as in the paper; `CyclicEigen` provides the
+    specific automorphism used in downstream proofs. -/
+theorem permutation_invariance_abstract
+    {α : Type*} (ax : Axiom1 α) (sl : StructuralLeibniz ax.toDistinguishabilitySpace)
+    (σ : Equiv.Perm (Fin ax.N)) :
+    ∃ (g : α ≃ α), IsKAutomorphism ax.toDistinguishabilitySpace g ∧
+      ∀ (i : Fin ax.N), g (ax.basis i) = ax.basis (σ i) := by
+  -- Claim: σ is a K-symmetry of the basis configuration.
+  have h_sym : IsKSymmetry ax.toDistinguishabilitySpace ax.basis σ := by
+    intro i j
+    -- Both sides are 1 if i ≠ j (via σ(i) ≠ σ(j) ↔ i ≠ j for a permutation)
+    -- and 0 if i = j (via K_refl).
+    by_cases hij : i = j
+    · subst hij
+      -- K(b_{σ(i)}, b_{σ(i)}) = 0 = K(b_i, b_i)
+      rw [ax.K_refl, ax.K_refl]
+    · -- σ is a bijection, so σ(i) ≠ σ(j) iff i ≠ j
+      have hσij : σ i ≠ σ j := fun h => hij (σ.injective h)
+      rw [ax.basis_distinguishable (σ i) (σ j) hσij,
+          ax.basis_distinguishable i j hij]
+  -- Apply Structural Leibniz to extend the K-symmetry globally.
+  exact sl.extends_globally ax.basis σ h_sym
+
+end QuantumRelational

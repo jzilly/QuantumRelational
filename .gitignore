@@ -1,0 +1,35 @@
+# Lean 4 / Lake build artifacts — NEVER commit
+.lake/
+/build/
+*.olean
+*.ilean
+*.hash
+
+# macOS
+.DS_Store
+._*
+
+# Editor backups
+*~
+*.swp
+*.swo
+\#*\#
+.\#*
+
+# Output / log files
+*.log
+*.aux
+*.out
+*.toc
+*.synctex.gz
+*.pdf
+
+# Python bytecode (for scripts/)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local environment / secrets
+.env
+.envrc

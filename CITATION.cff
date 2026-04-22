@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this formalization, please cite the accompanying paper."
+title: "QuantumRelational: a Lean 4 formalization of quantum mechanics from finite graded equality"
+authors:
+  - family-names: "Zilly"
+    given-names: "Julian G."
+    orcid: "https://orcid.org/0009-0005-6257-0214"
+    email: "research@julianzilly.com"
+type: software
+license: MIT
+repository-code: "https://github.com/jzilly/QuantumRelational"
+preferred-citation:
+  type: article
+  title: "Existence as Distinguishability: Quantum Mechanics from Finite Graded Equality"
+  authors:
+    - family-names: "Zilly"
+      given-names: "Julian G."
+      orcid: "https://orcid.org/0009-0005-6257-0214"
+  year: 2026
+  journal: "arXiv preprint arXiv:2603.11900"
+  url: "https://arxiv.org/abs/2603.11900"
