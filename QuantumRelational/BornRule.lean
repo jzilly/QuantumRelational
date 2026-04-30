@@ -1,7 +1,7 @@
 /-
   QuantumRelational/BornRule.lean
 
-  **Theorem 69: The Born Rule**
+  **`thm:born-kernel`: The Born Rule**
 
   The unique admissible probability assignment is:
     P_ℬ(ψ)({k}) = |⟨ψ|aₖ⟩|² = 1 - K(ψ, aₖ)
@@ -18,7 +18,7 @@
 
   **Logical structure:**
   1. Define admissible probability assignments (Definition 68)
-  2. Define the metric compatibility ODE (Lemma 67)
+  2. Define the metric compatibility ODE (`lem:metric-compatibility`)
   3. Decompose the ODE uniqueness argument:
      a. Axiomatize the antiderivative/FTC step (separation of variables)
      b. PROVE c = 1 from boundary conditions + arcsin algebra
@@ -94,10 +94,10 @@ structure AdmissibleProbAssignment where
   f_diff : ∀ x, 0 < x → x < 1 → DifferentiableAt ℝ f x
 
 -- ============================================================
--- Section 2: The Metric Compatibility ODE (Lemma 67)
+-- Section 2: The Metric Compatibility ODE (`lem:metric-compatibility`)
 -- ============================================================
 
-/-- **The Metric Compatibility ODE (Lemma 67)**
+/-- **The Metric Compatibility ODE (`lem:metric-compatibility`)**
 
 When requiring that the Fisher-Rao metric g_FR on the probability simplex
 {p_k = f(|c_k|²)} equals c² times the Fubini-Study metric g_FS on state
@@ -490,7 +490,7 @@ theorem id_satisfies_ode :
 theorem id_has_deriv (x : ℝ) : HasDerivAt id (1 : ℝ) x :=
   hasDerivAt_id x
 
-/-- **Theorem 69: The Born rule is the unique metric-compatible
+/-- **`thm:born-kernel`: The Born rule is the unique metric-compatible
     probability assignment.**
 
     Applying the ODE uniqueness theorem to any admissible probability
@@ -616,7 +616,7 @@ theorem born_rule_normalization_inner {N : ℕ} (ψ : EuclideanSpace ℂ (Fin N)
 -- Statement #92: K-Affinity Normalization
 -- ============================================================
 
-/-- **Lemma 92: K-Affinity Normalization**
+/-- **`lem:affinity-normalization`: K-Affinity Normalization**
 
 The K-affinities A(ψ, a_k) = 1 - K(ψ, a_k) sum to 1 over any basis:
   Σ_{k=1}^{N} (1 - K(ψ, a_k)) = 1

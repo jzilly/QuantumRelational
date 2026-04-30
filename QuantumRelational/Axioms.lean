@@ -17,6 +17,8 @@
       (1b)(ii) Completeness/surjectivity: every consistent K-profile is a state
       (1b)(iii) Finite determinacy: finite separating set S
       (1b)(iv) Structural Leibniz: K-symmetries of finite configs extend globally
+      (1c) Connectedness: α is connected in the K-pseudometric topology
+           (continuity of K is automatic in this topology, not an axiom)
 
     Axiom 2 (Universal Relationality):
       (2a) Operational Completeness: K(x,y) = 0 ⟹ x = y
@@ -95,6 +97,53 @@ structure Axiom1 (α : Type*) extends BasisStructure α where
   /-- Basis elements are mutually perfectly distinguishable -/
   basis_distinguishable : ∀ (i j : Fin N), i ≠ j → K (basis i) (basis j) = 1
   -- Note: basis_self (K(b_i, b_i) = 0) is redundant with inherited K_refl.
+  /-- **Axiom (1c): Connectedness (Lean encoding of the paper's Imperceptibility commitment).**
+      The state space α is connected in the K-pseudometric topology
+      `d(x, y) := ⨆ z, |K(x, z) - K(y, z)|`.
+
+      **Paper-Lean asymmetry.** The paper states (1c) as *Imperceptibility*:
+      `K(α × α)` is dense in `[0,1]` (equivalently, the K-image equals
+      `[0,1]`, since the closure of K(α × α) is closed in the compact unit
+      interval). The Lean encoding takes the topologically equivalent
+      *Connectedness* condition as the primitive structure field. Under the
+      framework's structural identification (paper Theorems
+      `thm:complexity-constraint`, `thm:points-sections`), Imperceptibility
+      and Connectedness are equivalent (paper Theorem
+      `thm:imperceptibility-connectedness`); the choice between them is a
+      presentation matter that does not affect any downstream Lean proof.
+      The Lean encoding takes connectedness as primitive because it is
+      directly usable as a `ConnectedSpace` instance for topological proofs;
+      no Lean theorem in this library consumes density of the K-image as a
+      hypothesis where it is not interchangeable with connectedness.
+
+      `d` is a genuine metric by `K_ident` (Saturation (i)); the triangle
+      inequality `|K(x,y) - K(x',y')| ≤ d(x,x') + d(y,y')` makes K jointly
+      continuous in this metric, so continuity of K is *automatic* and is
+      not an additional axiom (the paper's Appendix B,
+      `app:structural-conditions`, derives joint continuity of K from the
+      K-pseudometric; see paper Remark `rem:topology-from-K`).
+
+      Connectedness is the framework's only commitment beyond finite
+      capacity (1a) and saturation (1b). Compactness of α, density of the
+      K-image, the identity K(α × α) = [0,1], and M(K) = ∞ are all
+      theorems rather than axioms (derivable from (1a) + (1b) + (1c) via
+      the K-profile embedding α ↪ [0,1]^N).
+
+      This axiom excludes binary K (the classical N-state register, where
+      the K-pseudometric is the discrete metric, making α totally
+      disconnected) and all finite-resolution refinements (where α is a
+      finite K-symmetric subset, again disconnected in the K-metric).
+
+      **Lean encoding.** The K-pseudometric topology is bundled as a
+      structure field `topology : TopologicalSpace α` (intended to be the
+      topology induced by the K-pseudometric, in which K is continuous
+      automatically). The connectedness commitment is the field
+      `connected`. Downstream proofs may use `letI := ax.topology` to
+      bring the topology into instance scope and then reference
+      `ConnectedSpace` in its standard form. -/
+  topology : TopologicalSpace α
+  /-- α is connected in the K-pseudometric topology. -/
+  connected : @ConnectedSpace α topology
 
 /-- **Axiom 2: Saturation (Completeness)**
 Every state is a complete probabilistic mixture over any basis.

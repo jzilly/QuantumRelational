@@ -1,8 +1,8 @@
 /-
   QuantumRelational/FubiniStudy.lean
 
-  **Theorem 60: The Fubini-Study Metric from Distinguishability**
-  **Theorem 62: Uniqueness of Fubini-Study**
+  **`thm:fs-from-K`: The Fubini-Study Metric from Distinguishability**
+  **`thm:fs-unique`: Uniqueness of Fubini-Study**
 
   The infinitesimal form of K gives the Fubini-Study metric:
     K(ψ, ψ+dψ) = g_FS(dψ, dψ) + O(|dψ|³)
@@ -11,7 +11,7 @@
 
   The FS metric is the unique U(N)-invariant Riemannian metric on ℂP^{N-1}.
 
-  **Corollary 61: Fisher Information**
+  **`thm:fisher-interpretation`: Fisher Information**
     g_FS = (1/4) F_Q  where F_Q is the quantum Fisher information.
 
   **Key proved theorem (new):**
@@ -141,7 +141,7 @@ theorem K_bounds_from_projection
 -- Fubini-Study form equals K for tangent vectors
 -- ============================================================
 
-/-- **Theorem 60: K(ψ, ψ+dψ) = g_FS(dψ, dψ) to leading order.**
+/-- **`thm:fs-from-K`: K(ψ, ψ+dψ) = g_FS(dψ, dψ) to leading order.**
 
     For normalized ψ (‖ψ‖ = 1), the Taylor expansion of K around
     ψ gives:
@@ -253,7 +253,7 @@ theorem K_taylor_is_gFS_axiom
     field_simp
     ring
 
-/-- **Corollary 61:** g_FS = (1/4) F_Q.
+/-- **`thm:fisher-interpretation`:** g_FS = (1/4) F_Q.
 
     The quantum Fisher information F_Q = 4(⟨∂ψ|∂ψ⟩ - |⟨ψ|∂ψ⟩|²) = 4 g_FS.
     This is immediate from the definitions. -/
@@ -264,7 +264,7 @@ theorem gFS_quarter_FQ
     (1 / 4 : ℝ) * (4 * fubini_study_form ψ dψ) := by
   ring
 
-/-- **Theorem 62:** The FS metric is the unique U(N)-invariant metric
+/-- **`thm:fs-unique`:** The FS metric is the unique U(N)-invariant metric
     on ℂP^{N-1} = U(N)/(U(1) × U(N-1)).
 
     This follows from the Kobayashi-Nomizu classification of invariant

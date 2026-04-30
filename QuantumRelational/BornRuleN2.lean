@@ -1,7 +1,7 @@
 /-
   QuantumRelational/BornRuleN2.lean
 
-  **Corollary 71: The Born Rule at N = 2 (Beyond Gleason)**
+  **`cor:born-n2` / `rem:born-n2`: The Born Rule at N = 2 (Beyond Gleason)**
 
   For a qubit (N = 2), the Born rule p_k = |c_k|² is forced by
   metric compatibility alone, without needing Gleason's theorem
@@ -107,7 +107,7 @@ theorem rpow_half_eq_half_forces_p_1
 -- Section 3: The Main N = 2 Theorem
 -- ============================================================
 
-/-- **Corollary 71 (Route i): For N = 2, normalization forces α = 2.**
+/-- **`cor:born-n2` / `rem:born-n2` (Route i): For N = 2, normalization forces α = 2.**
 
     Starting from:
     1. Power-law ansatz: p_k = |c_k|^α = (|c_k|²)^{α/2}
@@ -185,7 +185,7 @@ theorem metric_bridge_n2 :
     2. The ODE f'²/(f(1-f)) = c²/(x(1-x)) makes sense for any N
     3. Normalization at x = 1/2 uniquely fixes the exponent
 
-    This is formalized as: the metric bridge theorem (Theorem 64)
+    This is formalized as: the metric bridge theorem (`thm:born-kernel`)
     applies to any admissible probability assignment, including N = 2. -/
 theorem born_rule_n2_vs_gleason :
     -- For N = 2: metric compatibility gives the Born rule (this file)

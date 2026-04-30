@@ -1,8 +1,8 @@
 /-
   QuantumRelational/Composite.lean
 
-  **Theorem 107: Tensor Product Structure**
-  **Theorem 109: Kernel Composition from Associativity**
+  **`thm:tensor`: Tensor Product Structure**
+  **`thm:kernel-composition`: Kernel Composition from Associativity**
 
   For spatially separated systems A and B:
   - ℋ_AB ≅ ℋ_A ⊗ ℋ_B  (tensor product)
@@ -62,7 +62,7 @@ theorem compose_assoc (x y z : ℝ) :
   simp [kernel_compose]
   ring
 
-/-- **Theorem 109 (uniqueness):** f(x,y) = 1 - (1-x)(1-y) is the unique
+/-- **`thm:kernel-composition` (uniqueness):** f(x,y) = 1 - (1-x)(1-y) is the unique
     function satisfying all boundary conditions + symmetry + associativity.
 
     The proof uses Aczél's theorem:
@@ -384,11 +384,11 @@ theorem kernel_product_states (KA KB : ℝ) :
     kernel_compose KA KB = 1 - (1 - KA) * (1 - KB) := rfl
 
 -- ============================================================
--- Statement #105: Capacity Multiplicativity
+-- `thm:capacity-mult`: Capacity Multiplicativity
 -- ============================================================
 
 /-
-**Theorem 105: Capacity Multiplicativity (N_AB = N_A * N_B)**
+**`thm:capacity-mult`: Capacity Multiplicativity (N_AB = N_A * N_B)**
 
 For spatially separated systems with the kernel composition rule
 K_AB = 1 - (1-K_A)(1-K_B), the composite capacity is multiplicative.
@@ -440,7 +440,7 @@ theorem kernel_compose_eq_zero_iff {x y : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1)
   · rintro ⟨rfl, rfl⟩
     exact compose_zero_zero
 
-/-- **Theorem 105 (main): Dimension multiplicativity from kernel composition.**
+/-- **`thm:capacity-mult` (main): Dimension multiplicativity from kernel composition.**
 
     For systems A with basis {a₀,...,a_{NA-1}} and B with basis {b₀,...,b_{NB-1}},
     the product pairs {(aᵢ,bⱼ)} form a basis for the composite system AB.
@@ -482,10 +482,10 @@ theorem real_fails_local_tomography :
   exact ⟨3, by omega, by omega⟩
 
 -- ============================================================
--- Statement #102: Spatially Separated Systems
+-- `def:independent`: Spatially Separated Systems
 -- ============================================================
 
-/-- **Definition 102: Spatially Separated Systems**
+/-- **`def:independent`: Spatially Separated Systems**
 
 Two systems A and B are spatially separated if their measurement
 frames are independently choosable: an observer can select any
@@ -539,7 +539,7 @@ theorem spatial_sep_one_right {α β : Type*} (sep : SpatialSeparation α β)
   rw [sep.factorize, kernel_compose, hB]
   ring
 
-/-- **Theorem 105 (from spatial separation):**
+/-- **`thm:capacity-mult` (from spatial separation):**
     For spatially separated systems, product basis pairs (aᵢ, bⱼ) with
     (i,j) ≠ (i',j') are perfectly distinguishable. Either i ≠ i'
     (giving K_A = 1) or j ≠ j' (giving K_B = 1), and kernel composition
@@ -565,12 +565,12 @@ theorem spatial_sep_zero_iff {α β : Type*}
     (sep.K_B_nonneg b b') (sep.K_B_le_one b b')
 
 -- ============================================================
--- Statement #103: Characterization of Independence
+-- `thm:independence-characterization`: Characterization of Independence
 -- ============================================================
 
-/-! ### Statement #103: Characterization of Independence
+/-! ### `thm:independence-characterization`: Characterization of Independence
 
-Spatial separation (Definition 102) is equivalent to three properties:
+Spatial separation (`def:independent`) is equivalent to three properties:
 1. **No-signaling**: Local A-statistics are independent of B operations
 2. **Independent local symmetry actions**: [g_A, g_B] = e (commutator is trivial)
 3. **Independent outcomes for product states**: Product-state probabilities factorize
@@ -579,7 +579,7 @@ These all follow from the factorization B_AB = B_A × B_B and the kernel
 composition rule K_AB = kernel_compose(K_A, K_B).
 -/
 
-/-- **No-signaling (Theorem 103, part 1):**
+/-- **No-signaling (`thm:independence-characterization`, part 1):**
     For spatially separated systems, local A-statistics are recovered
     from the composite kernel when the B subsystem is in a self-identical
     configuration (K_B(b,b) = 0). This means A-measurements cannot be
@@ -608,7 +608,7 @@ theorem no_signaling_general {α β : Type*} (sep : SpatialSeparation α β)
     sep.K_AB (a, b₁) (a', b₁') = sep.K_AB (a, b₂) (a', b₂') := by
   rw [sep.factorize, sep.factorize, hB]
 
-/-- **Independent outcomes for product states (Theorem 103, part 3):**
+/-- **Independent outcomes for product states (`thm:independence-characterization`, part 3):**
     For product state pairs where both subsystems are self-identical
     (K_A(a,a) = 0 and K_B(b,b) = 0), the composite is also self-identical.
     Combined with the kernel-to-probability map p = f(K), this gives
@@ -619,7 +619,7 @@ theorem independent_outcomes_product {α β : Type*}
     kernel_compose (sep.K_A a a') (sep.K_B b b') :=
   sep.factorize a a' b b'
 
-/-- **Theorem 103 (unified): Characterization of independence.**
+/-- **`thm:independence-characterization` (unified): Characterization of independence.**
     Spatial separation implies all three properties:
     (1) No-signaling: marginalizing over B recovers K_A
     (2) Commutativity: local symmetry actions commute (proved in local_actions_commute)
@@ -641,13 +641,13 @@ theorem characterization_of_independence {α β : Type*}
    fun b' => sep.factorize a a' b b'⟩
 
 -- ============================================================
--- Statement #104: Commutativity from Factorization
+-- `lem:commutativity`: Commutativity from Factorization
 -- ============================================================
 
-/-- **Lemma 104: Commutativity from Factorization**
+/-- **`lem:commutativity`: Commutativity from Factorization**
 
 For spatially separated systems, local symmetry actions commute:
-[g_A, g_B] = 0. This follows from the kernel factorization (Statement #103):
+[g_A, g_B] = 0. This follows from the kernel factorization (`thm:independence-characterization`):
   K_AB((a,b),(a',b')) = kernel_compose(K_A(a,a'), K_B(b,b'))
 
 A local symmetry g_A acts only on the A-component (leaving B unchanged),
@@ -666,7 +666,7 @@ theorem local_actions_commute {α β : Type*}
     Prod.map id f_B (Prod.map f_A id (a, b)) := by
   simp [Prod.map]
 
-/-- **Lemma 104 (kernel preservation):**
+/-- **`lem:commutativity` (kernel preservation):**
 Local actions commute at the kernel level: the composite kernel value
 is the same regardless of the order in which local symmetries are applied.
 This is because kernel_compose(K_A(f_A a, f_A a'), K_B(f_B b, f_B b'))
@@ -683,17 +683,17 @@ theorem local_symmetries_commute_kernel {α β : Type*}
   rw [sep.factorize, sep.factorize, hA, hB]
 
 -- ============================================================
--- Statement #111: Capacity Dilution
+-- `thm:capacity-dilution-composite`: Capacity Dilution
 -- ============================================================
 
-/-- **Theorem 111: Capacity Dilution**
+/-- **`thm:capacity-dilution-composite`: Capacity Dilution**
 
 A qubit (N_S = 2) coupled to an environment E of capacity N_E
 has composite capacity N_SE = N_S · N_E = 2 · N_E (by dimension
-multiplicativity, Statement #105/107).
+multiplicativity, `thm:capacity-mult`/`thm:tensor`).
 
 For non-trivial continuous dynamics, the composite system requires
-N_SE ≥ 3 (the qutrit threshold from Statement #86: capacity halting
+N_SE ≥ 3 (the qutrit threshold from `thm:capacity-halting`: capacity halting
 shows that N = 2 admits only discrete/cyclic dynamics, while N ≥ 3
 is needed for continuous symmetry groups like SU(N)).
 
@@ -721,10 +721,10 @@ theorem composite_continuous_threshold (N_A N_B : ℕ) (hA : 2 ≤ N_A) (hB : 2 
     3 ≤ N_A * N_B := by nlinarith
 
 -- ============================================================
--- Statement #106: Local Tomography
+-- `def:local-tomography`: Local Tomography
 -- ============================================================
 
-/-- **Definition 106: Local Tomography**
+/-- **`def:local-tomography`: Local Tomography**
 
 A composite system AB satisfies local tomography if joint states are
 uniquely determined by the statistics of local measurements. Formally,
@@ -773,10 +773,10 @@ theorem quaternionic_local_tomography_fails :
        (2 * 2) * (2 * (2 * 2) - 1)) := by omega
 
 -- ============================================================
--- Statement #107: Local Tomography Parameter Decomposition
+-- `thm:tensor`: Local Tomography Parameter Decomposition
 -- ============================================================
 
-/-- **Theorem 107 (parameter decomposition): Local tomography decomposes
+/-- **`thm:tensor` (parameter decomposition): Local tomography decomposes
     the joint state space into local and correlation parameters.**
 
     For complex quantum mechanics with N_A, N_B ≥ 2:
@@ -870,10 +870,10 @@ theorem local_tomography_complex_unique (NA NB : ℕ) :
   power_function_multiplicative 2 NA NB
 
 -- ============================================================
--- Statement #107: Local Tomography — Determination by Local + Correlations
+-- `thm:tensor`: Local Tomography — Determination by Local + Correlations
 -- ============================================================
 
-/-- **Theorem 107 (local tomography — determination structure):**
+/-- **`thm:tensor` (local tomography — determination structure):**
 
 Local tomography means that joint states on AB are determined by:
   1. Local measurement statistics on A (NA² - 1 parameters)
@@ -954,7 +954,7 @@ We address this by formalizing:
 -- 1. Composite Hilbert Space as Tensor Product Space
 -- ============================================================
 
-/-- **Theorem 107 (tensor product structure):**
+/-- **`thm:tensor` (tensor product structure):**
     The composite index space `Fin NA × Fin NB` is equivalent to
     `Fin (NA * NB)` via Mathlib's `finProdFinEquiv`.
 

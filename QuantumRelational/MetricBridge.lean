@@ -1,18 +1,18 @@
 /-
   QuantumRelational/MetricBridge.lean
 
-  **Theorem 64: From Distinguishability Kernel to Born Rule — The Metric Bridge**
-  **Lemma 67: Metric Compatibility — Fisher-Rao Equals Fubini-Study**
+  **`thm:born-kernel`: From Distinguishability Kernel to Born Rule — The Metric Bridge**
+  **`lem:metric-compatibility`: Metric Compatibility — Fisher-Rao Equals Fubini-Study**
 
   The "metric bridge" argument connects the geometric structure of state
   space (Fubini-Study metric g_FS) to the statistical structure of the
   probability simplex (Fisher-Rao metric g_FR), deriving the Born rule.
 
   **The logical chain:**
-  1. K determines g_FS (Theorem 60): K(ψ, ψ+dψ) = g_FS(dψ,dψ) + O(3)
+  1. K determines g_FS (`thm:fs-from-K`): K(ψ, ψ+dψ) = g_FS(dψ,dψ) + O(3)
   2. Any probability rule p_k = f(|c_k|²) determines a Fisher-Rao metric:
        g_FR = Σ_k [f'(|c_k|²)]² d|c_k|⁴ / f(|c_k|²)
-  3. U(N)-invariance forces g_FR ∝ g_FS (Theorem 62 via Kobayashi-Nomizu)
+  3. U(N)-invariance forces g_FR ∝ g_FS (`thm:fs-unique` via Kobayashi-Nomizu)
   4. This proportionality gives the metric compatibility ODE:
        [f'(x)]² / (f(x)(1-f(x))) = c² / (x(1-x))
   5. ODE uniqueness (Picard-Lindelöf) with f(0)=0, f(1)=1 forces f = id
@@ -30,7 +30,7 @@ namespace QuantumRelational.MetricBridge
 -- Section 1: K = D² and the Fubini-Study connection
 -- ============================================================
 
-/-- **K = D² for pure states (Theorem 57).**
+/-- **K = D² for pure states (`thm:born-kernel` (Step 1, K = D² for pure states)).**
 
     K(ψ,φ) = 1 - |⟨ψ|φ⟩|² = ‖ψ - ⟨φ|ψ⟩φ‖² (the squared Fubini-Study
     projection distance from ψ to the ray through φ).
@@ -76,10 +76,10 @@ theorem fisher_rao_weight_alpha_2 (x : ℝ) (_hx : 0 < x) :
   simp [FisherRaoWeight, Real.rpow_zero]
 
 -- ============================================================
--- Section 3: Metric Compatibility (Lemma 67)
+-- Section 3: Metric Compatibility (`lem:metric-compatibility`)
 -- ============================================================
 
-/-- **Metric Compatibility Predicate (Lemma 67)**
+/-- **Metric Compatibility Predicate (`lem:metric-compatibility`)**
 
     A probability assignment f is metric-compatible if the Fisher-Rao
     metric g_FR induced by probabilities p_k = f(|c_k|²) is proportional
@@ -104,7 +104,7 @@ def MetricCompatible (f : ℝ → ℝ) : Prop :=
     ContinuousOn f (Set.Icc 0 1) ∧
     (∀ x, 0 < x → x < 1 → HasDerivAt f (f' x) x)
 
-/-- **Lemma 67 (key part): Metric compatibility forces α = 2 in power-law ansatz.**
+/-- **`lem:metric-compatibility` (key part): Metric compatibility forces α = 2 in power-law ansatz.**
 
     If f(x) = x^{α/2} is a power-law probability assignment, the
     Fisher-Rao / Fubini-Study ratio involves weights w_k = |c_k|^{α-2}.
@@ -162,20 +162,20 @@ theorem fisher_rao_proportionality_constant
   FubiniStudy.gFS_quarter_FQ ψ dψ
 
 -- ============================================================
--- Section 4: The Metric Bridge Theorem (Theorem 64)
+-- Section 4: The Metric Bridge Theorem (`thm:born-kernel`)
 -- ============================================================
 
-/-- **Theorem 64: The Metric Bridge — From K to the Born Rule**
+/-- **`thm:born-kernel`: The Metric Bridge — From K to the Born Rule**
 
     The complete derivation chain:
 
     Step 1: K(ψ,φ) = 1 - |⟨ψ|φ⟩|² determines the Fubini-Study metric
-            g_FS via Taylor expansion (Theorem 60).
+            g_FS via Taylor expansion (`thm:fs-from-K`).
 
     Step 2: Any admissible probability assignment p_k = f(|c_k|²)
             determines a Fisher-Rao metric g_FR on the probability simplex.
 
-    Step 3: U(N)-invariance forces g_FR ∝ g_FS (Theorem 62 via
+    Step 3: U(N)-invariance forces g_FR ∝ g_FS (`thm:fs-unique` via
             Kobayashi-Nomizu: the FS metric is the unique U(N)-invariant
             metric on ℂP^{N-1}).
 
@@ -237,14 +237,14 @@ theorem born_rule_unique_metric_compatible
 -- Section 5: Reversibility and Continuity
 -- ============================================================
 
--- Note: Corollary 72 (reversible_forces_alpha_2) was removed — it was an
+-- Note: (deleted) `cor:dynamics-born` (reversible_forces_alpha_2) was removed — it was an
 -- exact synonym of metric_compatibility_forces_alpha_2, confirmed unused elsewhere.
 
 -- ============================================================
 -- Statement #63: Continuity of Probability from Reversible Dynamics
 -- ============================================================
 
-/-- **Lemma 63: Continuity of Probability from Reversible Dynamics**
+/-- **`lem:continuity-from-dynamics`: Continuity of Probability from Reversible Dynamics**
 
 The probability function p must be continuous. Since K = 1 - |⟨ψ|φ⟩|²
 is a composition of continuous functions (inner product, norm, squaring,

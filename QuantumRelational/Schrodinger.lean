@@ -1,7 +1,7 @@
 /-
   QuantumRelational/Schrodinger.lean
 
-  **Theorem 82: Schrodinger Equation -- Existence and Uniqueness**
+  **`thm:schrodinger`: Schrodinger Equation -- Existence and Uniqueness**
 
   The evolution equation ih d/dt |psi> = H|psi> is the unique equation
   governing kernel-preserving dynamics.
@@ -85,7 +85,7 @@ theorem K_pres_implies_norm_inner_pres
 -- Step 2: Wigner + continuity ==> inner product preservation
 -- ============================================================
 
-/-- **Step 2 of the derivation chain (Theorem 82, core):**
+/-- **Step 2 of the derivation chain (`thm:schrodinger`, core):**
     K-preservation + group structure + continuity ==> inner product preservation.
 
     This is the main content of the Schrodinger derivation:
@@ -273,7 +273,7 @@ theorem unitary_from_adjoint_inverse (n : ℕ)
 -- The full derivation chain (summary theorem)
 -- ============================================================
 
-/-- **Theorem 82 (full chain, matrix version):**
+/-- **`thm:schrodinger` (full chain, matrix version):**
     K-preserving one-parameter group on C^n ==> self-adjoint generator
     with energy conservation.
 
@@ -319,11 +319,11 @@ theorem full_derivation_chain (n : ℕ) (hn : 1 ≤ n)
   exact ⟨H, hH⟩
 
 -- ============================================================
--- Statement #29: Energy as Rate of Relational Update
+-- `cor:energy-rate`: Energy as Rate of Relational Update
 -- ============================================================
 
 /-
-**Corollary 29: Energy as Rate of Relational Update**
+**`cor:energy-rate`: Energy as Rate of Relational Update**
 
 Energy is the rate of relational update: E = dK/dt measures how fast
 distinguishability changes. The self-adjoint generator H from Stone's
@@ -335,11 +335,11 @@ by H. Specifically:
   d/dt K(psi, U(t)phi)|_{t=0} depends on <psi|H|phi>
 
 The structural content: the generator of the one-parameter group
-(from Statement #25) is the energy observable. For an N-dimensional
+(from `thm:dynamics-derived`) is the energy observable. For an N-dimensional
 system, H is an NxN Hermitian matrix with N real eigenvalues
 (energy levels), so the energy spectrum has exactly N values.
 
-Uses: Statement #27 (continuous time as reconstructed parameterization).
+Uses: `thm:time-emergence` (continuous time as reconstructed parameterization).
 -/
 
 /-- **Energy conservation (proper statement):**

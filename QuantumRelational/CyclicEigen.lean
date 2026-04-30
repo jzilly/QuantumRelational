@@ -1,9 +1,9 @@
 /-
   QuantumRelational/CyclicEigen.lean
 
-  **Theorem 56: Emergence of Complex Numbers** (eigenvalue part)
-  **Lemma 43: Continuous Evolution Requires ℂ**
-  **Theorem 51: Cyclic Structure — G_dyn ≅ Z_N**
+  **`thm:complex`: Emergence of Complex Numbers** (eigenvalue part)
+  **`lem:sheaf-complex`: Continuous Evolution Requires ℂ**
+  **`thm:cyclic`: Cyclic Structure — G_dyn ≅ Z_N**
 
   The N×N cyclic permutation matrix π has eigenvalues e^{2πik/N}.
   For N ≥ 3, at least one eigenvalue is non-real, forcing the
@@ -93,7 +93,7 @@ theorem N2_eigenvalues_real :
                mul_one, mul_zero, cos_ofReal_im, sin_ofReal_re, zero_add, add_zero]
     exact Real.sin_pi
 
-/-- **Lemma 43 (summary):** For N ≥ 3, the cyclic permutation matrix has
+/-- **`lem:sheaf-complex` (summary):** For N ≥ 3, the cyclic permutation matrix has
     non-real eigenvalues, so the coefficient field must extend ℝ to ℂ.
     Combined with Frobenius (Thm 44), this forces 𝕂 = ℂ. -/
 theorem complex_forced (N : ℕ) (hN : 3 ≤ N) :
@@ -133,7 +133,7 @@ theorem card_zpowers_finRotate (N : ℕ) (hN : 2 ≤ N) :
     Nat.card (Subgroup.zpowers (finRotate N)) = N := by
   rw [Nat.card_zpowers, orderOf_finRotate N hN]
 
-/-- **Theorem 51: Cyclic Structure — G_dyn = ⟨π⟩ ≅ Z_N.**
+/-- **`thm:cyclic`: Cyclic Structure — G_dyn = ⟨π⟩ ≅ Z_N.**
 
     The intra-basis dynamical symmetry group G_dyn = ⟨π⟩ is cyclic
     of order N. Since any two cyclic groups of the same finite order

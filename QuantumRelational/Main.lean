@@ -1,14 +1,16 @@
 /-
   QuantumRelational/Main.lean
 
-  **Theorem 1: Main Theorem — Characterization of Relational Theories**
+  **`thm:main`: Main Theorem — Characterization of Relational Theories**
 
   For a distinguishability space (𝒳, K) satisfying Axioms 1-2
   (Finite Capacity with Saturation and Universal Relationality with
   Operational Completeness), the following are derived:
 
   (i)   Parsimony: no hidden variables beyond K
-  (ii)  Capacity Halting: determinism requires Ω(N²) bits vs log₂ N available
+  (ii)  Capacity Halting: determinism requires (M-1) log₂ N bits across
+        M MUBs against log₂ N available, scaling to Θ(N log₂ N) for
+        prime-power N at the maximal M = N+1
   (iii) Complex numbers ℂ are the unique coefficient field
   (iv)  The Born rule p_k = |c_k|² from metric compatibility
   (v)   Non-trivial continuous dynamics requires N ≥ 3

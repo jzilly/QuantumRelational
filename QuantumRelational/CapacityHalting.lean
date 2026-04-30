@@ -1,18 +1,19 @@
 /-
   QuantumRelational/CapacityHalting.lean
 
-  **Theorem 86: Capacity Halting Principle**
-  **Lemma 88: Incompressibility of Deterministic Assignments**
-  **Proposition 87: Kochen-Specker Bit Count**
+  **`thm:capacity-halting`: Capacity Halting Principle**
+  **`lem:incompressibility`: Incompressibility of Deterministic Assignments**
+  **`thm:ks-bits`: Kochen-Specker Bit Count**
 
   A deterministic hidden-variable model requires more storage
   than the system's capacity allows:
   - Available: C = log₂ N bits
   - Required for M MUBs: ≥ (M-1) log₂ N bits
-  - Full KS contexts: Ω(N²) bits
+  - Maximal MUB count (M = N+1, prime-power N): Θ(N log₂ N) bits
 
   This information-theoretic argument shows that hidden variables
-  are not just undetectable (Theorem 21) but impossible to store.
+  are not just undetectable (`thm:parsimony-derived`) but impossible
+  to store.
 
   **Scope note (mechanization vs. physics):**
   The theorems in this file formalize the ELEMENTARY ARITHMETIC STEPS
@@ -45,7 +46,7 @@ import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 namespace QuantumRelational.CapacityHalting
 
-/-- **Theorem 86 (counting):** For M ≥ 3 MUBs with N outcomes each,
+/-- **`thm:capacity-halting` (counting):** For M ≥ 3 MUBs with N outcomes each,
     a deterministic assignment requires at least (M-1) log₂ N bits,
     which exceeds the available log₂ N bits.
 
@@ -56,7 +57,7 @@ namespace QuantumRelational.CapacityHalting
 theorem capacity_deficit (N M : ℕ) (_hN : 2 ≤ N) (hM : 3 ≤ M) :
     1 < M - 1 := by omega
 
-/-- **Theorem 86 (full):** The required storage (M-1) log₂ N strictly
+/-- **`thm:capacity-halting` (full):** The required storage (M-1) log₂ N strictly
     exceeds the available capacity log₂ N for M ≥ 3 MUBs with N ≥ 2. -/
 theorem capacity_deficit_bits (N M : ℕ) (hN : 2 ≤ N) (hM : 3 ≤ M) :
     Nat.log 2 N < (M - 1) * Nat.log 2 N := by
@@ -82,13 +83,13 @@ theorem assignment_count_exceeds_capacity (N M : ℕ) (hN : 2 ≤ N) (hM : 3 ≤
   · omega
   · omega
 
-/-- **Lemma 88(a):** Combinatorial lower bound.
+/-- **`lem:incompressibility`(a):** Combinatorial lower bound.
     A deterministic assignment λ : {1,...,M} → {1,...,N} requires
     (M-1) log₂ N bits to specify (one of N^{M-1} possibilities). -/
 theorem incompressibility_combinatorial (N M : ℕ) (_hN : 2 ≤ N) (hM : 2 ≤ M) :
     1 ≤ M - 1 := by omega
 
-/-- **Lemma 88 (MUB constraint):**
+/-- **`lem:incompressibility` (MUB constraint):**
     For MUBs, |⟨bᵢ|b'ⱼ⟩|² = 1/N. This uniform overlap means
     knowing the outcome in one basis provides zero information
     about the outcome in another, forcing independent storage.
@@ -101,9 +102,17 @@ theorem mub_overlap_uniform (N : ℕ) (hN : 0 < N) :
   have hN' : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
   rw [one_div, mul_inv_cancel₀ hN']
 
-/-- **Proposition 87:** Kochen-Specker sets contain Ω(N²) projectors.
-    The storage requirement Ω(N²) bits far exceeds the available
-    log₂ N bits for all N ≥ 3. -/
+/-- **`thm:ks-bits`:** Kochen-Specker contexts (M MUBs with N projectors
+    each) contain O(N²) projectors total; the deterministic-assignment
+    storage requirement is (M-1) log₂ N bits, scaling to Θ(N log₂ N)
+    for prime-power N at the maximal M = N+1, which strictly exceeds
+    the available log₂ N capacity (paper Theorem `thm:ks-bits`).
+
+    This file proves the qualitatively-correct loose form: log₂ N < N²
+    for N ≥ 3, since log₂ N < N (always) and N ≤ N² (for N ≥ 1). The
+    looser N² bound suffices for the qualitative capacity-overflow
+    argument; the sharper Θ(N log₂ N) figure of the paper is argued
+    via the MUB structure of `lem:incompressibility`(a) above. -/
 theorem ks_bit_count_exceeds_capacity (N : ℕ) (hN : 3 ≤ N) :
     Nat.log 2 N < N ^ 2 := by
   -- log₂ N < N for N ≥ 1 (since N < 2^N)
@@ -229,9 +238,9 @@ A non-contextual model assigns a definite outcome to every
 measurement basis independently. For M >= 3 mutually unbiased
 bases (MUBs) with N outcomes each:
 
-- Available storage: C = log2(N) bits (Theorem 83)
+- Available storage: C = log2(N) bits (Definition `def:info-capacity`)
 - Required for non-contextual assignment: (M-1) * log2(N) bits
-  (Theorem 86, capacity_deficit)
+  (`thm:capacity-halting`, capacity_deficit)
 - Since M >= 3, we have (M-1) >= 2, so (M-1) * log2(N) > log2(N)
 
 Combined with the Born rule normalization (Statement #93:
@@ -342,10 +351,10 @@ distributions over a finite outcome set.
 This connects the combinatorial bound (assignment count) to the
 information-theoretic content of the capacity-halting argument.
 
-The Kolmogorov-complexity bound (Lemma 88(b) in the paper), which
-uses empirical outcome patterns rather than a priori counting, is not
-formalized here — it requires Chaitin's incompressibility theorem
-applied to observed Bernoulli-like statistics (see paper §10).
+The Kolmogorov-complexity bound (Lemma `lem:incompressibility`(b) in
+the paper), which uses empirical outcome patterns rather than a priori
+counting, is not formalized here — it requires Chaitin's incompressibility
+theorem applied to observed Bernoulli-like statistics (see paper §10).
 -/
 
 /-- **Real-valued entropy: log₂(N^M) = M · log₂ N.**
@@ -419,10 +428,16 @@ theorem shannon_capacity_deficit_positive (N M : ℕ) (hN : 2 ≤ N) (hM : 3 ≤
 --
 -- The Shannon entropy `(M-1) log₂ N` is the average bit-cost of
 -- specifying a uniform random assignment. Chaitin's incompressibility
--- theorem (paper Lemma 88(b)) strengthens this for generic assignments
--- reproducing observed quantum statistics: their Kolmogorov
--- complexity is bounded below by `(M-1)(N-1) - O(log M)`, which
--- exceeds `log₂ N` already at M = 2 for N ≥ 4.
+-- theorem (paper Lemma `lem:incompressibility`(b)) recovers the same
+-- `(M-1) log₂ N - O(log M)` bound via algorithmic information rather
+-- than combinatorial counting: any deterministic HV reproducing the
+-- observed Born statistics for M MUBs encodes a record of typical
+-- entropy `(M-1) log₂ N`, so Chaitin gives the matching Kolmogorov
+-- lower bound. The (a) and (b) bounds therefore agree in absolute
+-- strength; (b) supplies an independent route that does not require
+-- the Hilbert-space MUB geometry as a hypothesis. The deficit appears
+-- at M ≥ 3 in both bounds (the M = 2 case is marginal and is closed
+-- by applying (a) at M = 3, since three MUBs exist for every N ≥ 2).
 --
 -- Formalizing this Kolmogorov bound would require mechanizing
 -- Chaitin's theorem and empirical outcome patterns, which is beyond

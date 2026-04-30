@@ -1,12 +1,12 @@
 /-
   QuantumRelational/Frobenius.lean
 
-  **Theorem 44: Frobenius Classification — ℂ is Unique**
+  **`thm:frobenius`: Frobenius Classification — ℂ is Unique**
 
   The coefficient field 𝕂 is uniquely determined to be ℂ.
   Proof proceeds by elimination using Frobenius's theorem:
     - ℝ is excluded: eigenvalues e^{2πik/N} are non-real for N ≥ 3
-    - ℍ is excluded by two independent obstructions (Paper Thm 5.6):
+    - ℍ is excluded by two independent obstructions:
       (i) Spectral: x² + 1 = 0 has a 2-sphere of solutions in ℍ, so
           eigenvalue labels and multiplicities of the cyclic generator
           are not uniquely defined (no canonical spectral decomposition).
@@ -59,11 +59,11 @@ theorem quaternion_many_square_roots_of_neg_one :
   ext <;> simp <;> nlinarith
 
 -- ============================================================
--- Statement #24: Quaternionic Obstruction
+-- `thm:quaternion-obstruction`: Quaternionic Obstruction
 -- ============================================================
 
 /-
-**Theorem 24: Quaternionic Obstruction (aligned with Paper Thm 5.6)**
+**`thm:quaternion-obstruction`: Quaternionic Obstruction**
 
 Quaternions ℍ are excluded as the coefficient field by two independent
 obstructions, each individually sufficient:
@@ -86,7 +86,7 @@ obstructions, each individually sufficient:
      stronger version of the same dimensional mismatch.
 
 Combined with the ℝ exclusion (CyclicEigen.complex_forced), this
-leaves ℂ as the unique coefficient field (Theorem 44).
+leaves ℂ as the unique coefficient field (`thm:frobenius`).
 
 Historical note: `quaternion_noncommutative` is retained below as a
 mathematical fact about ℍ (establishing ℍ ≠ ℂ), but non-commutativity
@@ -130,7 +130,7 @@ theorem quaternionic_dimension_discrepancy (N : ℕ) (hN : 1 ≤ N) :
   simp [symplectic_dim]
   nlinarith
 
-/-- Quaternionic obstruction summary (aligned with paper Thm 5.6).
+/-- Quaternionic obstruction summary.
 
     ℍ is excluded by two independent obstructions:
     (i) Spectral: x² + 1 = 0 has a 2-sphere of solutions in ℍ, breaking
@@ -154,10 +154,10 @@ theorem quaternion_excluded :
   ⟨quaternion_many_square_roots_of_neg_one,
    quaternionic_local_tomography_obstruction⟩
 
-/-- **Theorem 44 (summary, aligned with paper Thm 5.6):** By Frobenius
+/-- **`thm:frobenius` (summary,):** By Frobenius
     classification (axiom), the finite-dimensional associative division
     algebras over ℝ are exactly ℝ, ℂ, ℍ.
-    - ℝ is excluded by Lemma 43 (non-real eigenvalues for N ≥ 3).
+    - ℝ is excluded by `lem:sheaf-complex` (non-real eigenvalues for N ≥ 3).
     - ℍ is excluded by two independent obstructions: spectral
       (multiple square roots of -1) and dimensional (excess parameters).
     Therefore 𝕂 = ℂ. -/
@@ -174,7 +174,7 @@ theorem C_is_unique_field :
 -- Frobenius Trichotomy Closure
 -- ============================================================
 
-/-- **Theorem 44 (Frobenius trichotomy closure):**
+/-- **`thm:frobenius` (Frobenius trichotomy closure):**
     Given that the coefficient field has real dimension d, and d is the
     dimension of a finite-dimensional associative division algebra over ℝ,
     the Frobenius classification gives d ∈ {1, 2, 4}.

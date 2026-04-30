@@ -1,7 +1,7 @@
 /-
   QuantumRelational/Parsimony.lean
 
-  **Theorem 21: Parsimony from Completeness and Saturation**
+  **`thm:parsimony-derived`: Parsimony from Completeness and Saturation**
 
   Under Axioms 1 and 2, every hidden variable extension is trivial: |Λ| = 1.
   This means there are no hidden variables — the quantum state is complete.
@@ -53,7 +53,7 @@ theorem axiom2_operationally_complete (ax : Axiom2 α) :
 -- Part 2: Hidden Variable Extension (general, non-trivializing)
 -- ============================================================
 
-/-- **Definition 20: Hidden Variable Extension**
+/-- **`def:hv-extension`: Hidden Variable Extension**
 
     A hidden variable extension of (X, K) is a space (X × Λ, K') where:
     - K' is a kernel on X × Λ (no a priori constraint tying K' to K)
@@ -96,7 +96,7 @@ def FactorsThroughK {X : Type*} (K : X → X → ℝ) (Λ : Type*)
     (∀ z, K x z = K x' z) →
     ∀ (y : X) (mu : Λ), K' (x, lam) (y, mu) = K' (x', lam') (y, mu)
 
-/-- **Theorem 21: Parsimony.**
+/-- **`thm:parsimony-derived`: Parsimony.**
 
     In an operationally complete theory, hidden variable extensions
     that factor through K are trivial:
@@ -206,7 +206,7 @@ invoking dynamics: either the hidden structure is slaved to K
 /-- **Decoupling Dichotomy, Case (a): Factoring implies triviality.**
 
     If K' factors through K, hidden variables have no effect.
-    This is the direct application of Parsimony (Theorem 21). -/
+    This is the direct application of Parsimony (`thm:parsimony-derived`). -/
 theorem decoupling_case_trivial
     {X : Type*} {Λ : Type*}
     (K : X → X → ℝ)
@@ -265,16 +265,16 @@ theorem decoupling_dichotomy
    fun hnf => decoupling_case_detectable K K' hnf⟩
 
 -- ============================================================
--- Statement #22: Information Parsimony — G ≅ Aut(X, K)
+-- `cor:parsimony`: Information Parsimony — G ≅ Aut(X, K)
 -- ============================================================
 
-/-! ### Corollary 22: Information Parsimony
+/-! ### `cor:parsimony`: Information Parsimony
 
 The state space is minimal: G ≅ Aut(X, K). The symmetry group of
 the theory equals the automorphism group of the distinguishability
 space (X, K), consisting of all bijections that preserve K.
 
-This follows from parsimony (Theorem 21): K captures all physical
+This follows from parsimony (`thm:parsimony-derived`): K captures all physical
 information, so K-preservation fully characterizes physical symmetries.
 -/
 
@@ -305,7 +305,7 @@ theorem isKernelAut_symm {X : Type*} {K : X → X → ℝ}
   simp at h
   exact h.symm
 
-/-- **Corollary 22 (key lemma): K-automorphisms preserve K-equivalence.**
+/-- **`cor:parsimony` (key lemma): K-automorphisms preserve K-equivalence.**
 
     If f preserves K and x, y have identical K-profiles (K(x,z) = K(y,z)
     for all z), then f(x) and f(y) also have identical K-profiles.
@@ -326,7 +326,7 @@ theorem kernel_aut_preserves_equivalence
     _ = K (f y) (f (f.symm z)) := (hf y (f.symm z)).symm
     _ = K (f y) z := by simp
 
-/-- **Corollary 22: Information Parsimony — G ≅ Aut(X, K).**
+/-- **`cor:parsimony`: Information Parsimony — G ≅ Aut(X, K).**
 
     In an operationally complete theory:
     - Every K-automorphism is injective on physical states:

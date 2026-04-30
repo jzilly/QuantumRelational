@@ -2,17 +2,25 @@
 
 Reference: `QuantumMechanicsFromFiniteGradedEquality.tex` → `lean-verification/QuantumRelational/`
 
-Last updated: 2026-04-20
+Last updated: 2026-04-30
 
 ## Conventions
 
 | Status | Meaning |
 |--------|---------|
-| ✓ Proved | Full Lean proof, no `sorry`, relies only on Mathlib + the 6 classical imports (Frobenius, Wigner, Stone, Kobayashi–Nomizu, Picard–Lindelöf, Aczél) |
+| ✓ Proved | Full Lean proof, no `sorry`, relies only on Mathlib + the 5 classical imports (Frobenius, Wigner, Kobayashi–Nomizu, Picard–Lindelöf, Aczél) |
 | ⚠ Partial | Lean statement exists but is weaker/narrower than the paper claim, or depends on a specific classical axiom, or formalizes only the arithmetic / algebraic core |
 | ✗ Not formalized | Paper statement has no Lean counterpart (argued in prose only) |
 
-The six classical imports are listed in the final section. All file paths below are relative to `lean-verification/QuantumRelational/`. Theorem names are given in `file.lean : symbol` form.
+The five classical imports are listed in the final section. Stone's theorem is partially mechanized rather than imported as an axiom: the reverse direction (skew-Hermitian generates exp) is fully proved from Mathlib's matrix exponential; the uniqueness portion of the forward direction is proved modulo `picard_lindelof_unique`; the existence portion uses a placeholder witness `A = 0` and is not consumed by `schrodinger_derivation_chain` (verifiable via `lake env lean QuantumRelational/AxiomCheck.lean`). All file paths below are relative to `lean-verification/QuantumRelational/`. Theorem names are given in `file.lean : symbol` form.
+
+---
+
+## §1 Introduction — Main Theorem
+
+| Paper Label | Name | Lean location | Status | Notes |
+|-------------|------|---------------|--------|-------|
+| Thm. `thm:main` | Main Theorem (characterization of relational theories) | `Main.lean : main_theorem`, `conclusion_i_parsimony`, `conclusion_ii_capacity_halting`, `conclusion_iii_complex_forced`, `conclusion_iv_born_rule`, `conclusion_v_n2_static` | ⚠ Partial | The five conclusions of the Main Theorem are stated as a conjunction; each conclusion's proof is in the corresponding sub-file (Parsimony, CapacityHalting, CyclicEigen, BornRule, CyclicEigen.N2_eigenvalues_real). The conjunction itself is `Main.main_theorem`. Status follows from each conclusion's status (Parsimony ✓, CapacityHalting ⚠ arithmetic only, etc.). |
 
 ---
 
@@ -29,7 +37,7 @@ The six classical imports are listed in the final section. All file paths below 
 | Prop. `prop:non-termination` | Non-termination of self-resolution | `Basic.lean : non_terminating_self_resolution` + `no_fixed_point_of_genuine_dynamics` | ✓ Proved | Fixed point ⟹ K(x*, f x*) = 0 |
 | Prop. `prop:stochastic-outcomes` | Stochastic outcomes | `Basic.lean : stochastic_outcomes_period_divides_card`, `stochastic_outcomes_rational`, `stochastic_outcomes_uniform_visitation`, `stochastic_outcomes_cycle_period` | ✓ Proved | Period bound, rational frequency, cycle uniformity (via `finRotate`) |
 | Rem. `rem:randomized-algorithms` | Randomized-algorithm analogy | — | ✗ Not formalized | Prose only |
-| Rem. `rem:page-wootters` | Page–Wootters context | — | ✗ Not formalized | Prose only |
+| Rem. `rem:randomized-algorithms` | Page–Wootters context | — | ✗ Not formalized | Prose only |
 | Rem. `rem:axioms-from-graded-equality` | Axioms motivated by graded equality | — | ✗ Not formalized | Prose-only meta-remark |
 
 ---
@@ -76,7 +84,7 @@ The six classical imports are listed in the final section. All file paths below 
 | Thm. `thm:time-emergence` | Continuous time from one-parameter subgroup | `Basic.lean : OneParameterSubgroup`, `time_evolution_invertible` | ⚠ Partial | Algebraic structure of one-parameter subgroups only; Stone's forward direction imported (see `ClassicalImports.stone_generator` honesty note) |
 | Cor. `cor:energy-rate` | Energy as rate of relational update | `Schrodinger.lean : energy_conservation_from_commutant`, `energy_expectation_constant` | ⚠ Partial | Energy conservation from commutant proved; identification E = dK/dt is prose |
 | Lem. `lem:intermediate-K` | Intermediate K-values exist | `Basic.lean : intermediate_K_values`, `SecondBasis`, `basis_element_not_maxdist_all` | ✓ Proved | |
-| Thm. `thm:continuity-forced` | Continuity from finite capacity + isotropy | `Basic.lean : continuity_state_dim_le_group_dim` | ⚠ Partial | Dimension-count formalized via `Module.finrank`; the Montgomery–Zippin step itself is an imported ODE/Lie axiom (unused concretely) |
+| (deleted: `thm:continuity-forced`) | Content moved to `app:structural-conditions` | `Basic.lean : continuity_state_dim_le_group_dim` | ⚠ Partial | Paper label removed; continuity of K is now automatic in the K-pseudometric topology of Axiom (1c). The dimension-count formalization is still useful and now corresponds to the Compactness/Smoothness theorems of Appendix B. |
 | Rem. `rem:nyquist-manifold` | Nyquist manifold interpretation | — | ✗ Not formalized | Prose only |
 | Thm. `thm:continuous-sampled` | Continuous vs sampled indistinguishability | `Basic.lean : nyquist_sample_count`; `Scaling.lean : quantum_sampling_mub_tomography` | ⚠ Partial | Arithmetic inequalities only (N < 2N; 2(finrank−1) = 2N−2). Nyquist argument is prose |
 
@@ -87,14 +95,14 @@ The six classical imports are listed in the final section. All file paths below 
 | Paper Label | Name | Lean location | Status | Notes |
 |-------------|------|---------------|--------|-------|
 | Thm. `thm:points-sections` | Points as global sections | `Basic.lean : SignatureSheaf`, `GlobalSection`, `kProfileSection`, `kProfile_injective`, `basis_kProfile_determined`, `basis_sections_distinct` | ✓ Proved | Injectivity of the K-profile map from saturation |
-| Rem. `rem:sheaf-perspective` | Sheaf perspective | — | ✗ Not formalized | Prose only |
-| Rem. `rem:cocycle-selection` | Cocycle selection | — | ✗ Not formalized | Prose only |
+| Rem. `lem:signature-sheaf` | Sheaf perspective | — | ✗ Not formalized | Prose only |
+| Rem. `lem:signature-sheaf` | Cocycle selection | — | ✗ Not formalized | Prose only |
 | Thm. `thm:dynamics-derived` | Cyclic generator π with spectrum {e^{2πik/N}} | `CyclicEigen.lean : rootOfUnity`, `rootOfUnity_pow`, `nonreal_eigenvalue`, `N2_eigenvalues_real`, `complex_forced`, `orderOf_finRotate`, `card_zpowers_finRotate`, `cyclic_group_structure` | ✓ Proved | Roots of unity + cyclic subgroup structure |
 | Rem. `rem:axiom3-status` | Status of any implicit "Axiom 3" | — | ✗ Not formalized | Prose only |
 | Thm. `thm:basis-topology` | Basis-space topology | `Basic.lean : basis_space_dim_via_finrank`, `flag_manifold_dim` | ⚠ Partial | Dimension identity only; topological structure itself is prose |
 | Lem. `lem:sheaf-complex` | Sheaf glueing / complex structure consistency | `Basic.lean : sheaf_glueing_local`, `sheaf_glueing_identity`, `sheaf_glueing_cocycle` | ✓ Proved | |
 | Thm. `thm:frobenius` | Frobenius classification (ℂ is unique) | `Frobenius.lean : C_is_unique_field`, `frobenius_forces_complex`, `quaternion_excluded`; `ClassicalImports.lean : frobenius_classification` (axiom) | ⚠ Partial | Frobenius trichotomy imported as axiom; ℝ/ℍ exclusion proved |
-| Cor. `cor:flag-manifold` | Flag manifold U(N)/(U(1))^N | `Basic.lean : flag_manifold_dim`, `flag_vs_state_dim`, `basis_space_dim_via_finrank` | ⚠ Partial | Dimension arithmetic only; the Lie-quotient identification is prose |
+| Cor. `thm:basis-topology` | Flag manifold U(N)/(U(1))^N | `Basic.lean : flag_manifold_dim`, `flag_vs_state_dim`, `basis_space_dim_via_finrank` | ⚠ Partial | Dimension arithmetic only; the Lie-quotient identification is prose |
 | Thm. `thm:hilbert-representation` | Hilbert space representation | `Basic.lean : HilbertSpaceRepresentation`, `hilbert_rep_reflexive`, `hilbert_rep_symmetric`, `hilbert_rep_basis_orthogonal`, `hilbert_rep_K_bounded`, `cpn_real_dimension_from_finrank`, `state_space_dim_from_quotient`, `minimal_representation_finrank`, `standard_basis_orthonormal_rep` | ✓ Proved | Faithful embedding into ℂ^N with K = 1 − |⟨·|·⟩|² |
 | Rem. `rem:equivariant-injection` | Equivariant injection | — | ✗ Not formalized | Prose only |
 
@@ -142,17 +150,17 @@ The six classical imports are listed in the final section. All file paths below 
 | Thm. `thm:fisher-interpretation` | Fisher interpretation g_FS = F_Q/4 | `FubiniStudy.lean : gFS_quarter_FQ` | ✓ Proved | |
 | Thm. `thm:fs-unique` | Uniqueness of Fubini–Study | `FubiniStudy.lean : fubini_study_unique`; `ClassicalImports.lean : kobayashi_nomizu_uniqueness` (axiom) | ⚠ Partial | Conclusion proved from imported Kobayashi–Nomizu axiom |
 | Lem. `lem:continuity-from-dynamics` | Continuity of probability from reversible dynamics | `MetricBridge.lean : continuity_of_probability`, `K_from_overlap_sq_continuous`, `born_probability_continuous`, `born_probability_from_K_continuous` | ✓ Proved | Composition of continuous maps |
-| Thm. `thm:metric-bridge` | Metric bridge (Theorem 64) | `MetricBridge.lean : MetricCompatible`, `metric_bridge`, `metric_bridge_constant`, `id_is_metric_compatible`, `born_rule_unique_metric_compatible`, `fisher_rao_proportionality_constant`, `metric_compatibility_forces_alpha_2`, `FisherRaoWeight`, `fisher_rao_weight_alpha_2` | ✓ Proved | Uses ODE uniqueness from `BornRule.lean` and FS uniqueness from `FubiniStudy.lean` |
-| Rem. `rem:why-squared` | Why squared probabilities | — | ✗ Not formalized | Prose only |
-| Rem. `rem:geometric-monism` | Geometric monism | — | ✗ Not formalized | Prose only |
+| (deleted: `thm:metric-bridge`; content absorbed into `thm:born-kernel`, `lem:metric-compatibility`) | ODE-uniqueness step within Born rule derivation | `MetricBridge.lean : MetricCompatible`, `metric_bridge`, `metric_bridge_constant`, `id_is_metric_compatible`, `born_rule_unique_metric_compatible`, `fisher_rao_proportionality_constant`, `metric_compatibility_forces_alpha_2`, `FisherRaoWeight`, `fisher_rao_weight_alpha_2` | ✓ Proved | Uses ODE uniqueness from `BornRule.lean` and FS uniqueness from `FubiniStudy.lean`. Now corresponds to `thm:born-kernel` Part 1 / `lem:metric-compatibility` (Step 1b ODE) in the paper. |
+| Rem. `rem:born-robustness` | Why squared probabilities | — | ✗ Not formalized | Prose only |
+| Rem. `rem:born-robustness` | Geometric monism | — | ✗ Not formalized | Prose only |
 | Lem. `lem:metric-compatibility` | Metric compatibility ODE | `BornRule.lean : MetricCompatibilityODE`, `antiderivative_form`, `c_eq_one_of_antideriv`, `f_eq_id_on_unit_interval`, `ode_uniqueness_born_rule` | ✓ Proved | Binary form of the ODE (see next row); uniqueness proved from scratch (no axiom) |
 | Rem. `rem:ode-binary-form` | ODE binary form vs per-component | `BornRule.lean` header | ⚠ Partial | Lean uses the binary Bernoulli form `[f']²/[f(1−f)] = c²/[x(1−x)]`; paper Lem. `lem:metric-compatibility` presents the per-component form `[f']²/f = c/x`. The two are equivalent on [0,1]; only the binary form is mechanized |
 | Def. `def:measure-setup` | Probability-measure setup | `BornRule.lean : AdmissibleProbAssignment` | ✓ Proved | |
 | Thm. `thm:born-kernel` | Born rule from K + metric compatibility | `BornRule.lean : born_f`, `born_f_zero`, `born_f_one`, `born_f_nonneg`, `born_f_le_one`, `born_f_monotone`, `born_f_differentiable`, `born_f_preserves_sum`, `born_admissible`, `id_satisfies_ode`, `id_has_deriv`, `born_rule_unique`, `power_law_forces_alpha_2`, `born_rule_ode_integration`, `boundary_forces_c_eq_1`, `born_rule_normalization`, `born_rule_prob_dist`, `born_rule_normalization_inner` | ✓ Proved | f = id uniqueness is `ode_uniqueness_born_rule`; normalization from ‖ψ‖ = 1 |
-| Rem. `rem:born-parsimony-dep` | Born rule depends on parsimony | — | ✗ Not formalized | Prose only |
+| Rem. `rem:born-robustness` | Born rule depends on parsimony | — | ✗ Not formalized | Prose only |
 | Cor. `cor:born-n2` | Born rule at N = 2 (beyond Gleason) | `BornRuleN2.lean : QubitNormalization`, `qubit_norm_at_p_1`, `half_power_constraint`, `rpow_half_eq_half_forces_p_1`, `born_rule_n2`, `born_rule_n2_is_identity`, `qubit_normalization`, `qubit_born_from_kernel`, `metric_bridge_n2`, `born_rule_n2_vs_gleason` | ✓ Proved | Power-law + normalization at x=1/2 route |
-| Cor. `cor:dynamics-born` | Dynamics-from-Born-rule consistency | `BornRule.lean : k_affinities_give_born_probabilities`, `k_affinities_born_normalized`, `k_affinity_born_valid`, `KAffinityNormalized`, `k_affinity_nonneg`, `k_affinity_le_one`, `k_affinity_prob_dist` | ✓ Proved | p_k = 1 − K(ψ, a_k) agrees with Born rule |
-| Rem. `rem:two-arguments` | Two arguments (Born + metric) | — | ✗ Not formalized | Prose only |
+| Rem. `rem:born-robustness` | Independent routes to α=2 (Gleason + Fisher-Rao consistency); the paper consolidates the historical duplicate-label aliases (`cor:dynamics-born`, `rem:two-arguments`, `rem:born-parsimony-dep`, `rem:why-squared`, `rem:geometric-monism`) into the canonical `rem:born-robustness` | `BornRule.lean : k_affinities_give_born_probabilities`, `k_affinities_born_normalized`, `k_affinity_born_valid`, `KAffinityNormalized`, `k_affinity_nonneg`, `k_affinity_le_one`, `k_affinity_prob_dist` | ✓ Proved | p_k = 1 − K(ψ, a_k) agrees with Born rule |
+| Rem. `rem:born-robustness` | Two arguments (Born + metric) | — | ✗ Not formalized | Prose only |
 | Cor. `cor:entropic` | Entropic uncertainty | `Scaling.lean : log_reciprocal`, `log_sqrt_eq_half_log`, `maassen_uffink_mub_bound`, `maassen_uffink_full_chain`, `entropic_uncertainty_nontrivial`, `entropy_range_nontrivial` | ✓ Proved | MUB chain −2 log(1/√N) = log N |
 
 ---
@@ -167,7 +175,7 @@ The six classical imports are listed in the final section. All file paths below 
 | Thm. `thm:zeno-floor` | Informational Zeno floor | `Scaling.lean : zeno_floor_positive`, `zeno_floor_upper_bound`, `zeno_floor_monotone_decreasing`, `zeno_floor_qubit`, `zeno_product_in_unit_interval` | ✓ Proved | 1/N² floor properties |
 | Thm. `thm:quantum-sampling` | Finite-capacity reconstruction | `Scaling.lean : quantum_sampling_mub_tomography`; `Basic.lean : nyquist_sample_count` | ⚠ Partial | Parameter counting via `finrank`; Peter–Weyl argument itself is prose |
 | Cor. `cor:uv-cutoff` | Natural UV cutoff | `Scaling.lean : energy_gap_lower_bound` | ⚠ Partial | Only lower bound on gap formalized; ℏ/δt identification is prose |
-| Cor. `cor:heisenberg` | Heisenberg uncertainty | `Scaling.lean : entropic_uncertainty_nontrivial`, `maassen_uffink_mub_bound` (Maassen–Uffink form) | ⚠ Partial | Entropic form formalized; product form ΔE·Δt ≥ 2πℏ/N is prose |
+| Cor. `thm:quantum-sampling` | Heisenberg uncertainty | `Scaling.lean : entropic_uncertainty_nontrivial`, `maassen_uffink_mub_bound` (Maassen–Uffink form) | ⚠ Partial | Entropic form formalized; product form ΔE·Δt ≥ 2πℏ/N is prose |
 | Thm. `thm:schrodinger` | Schrödinger equation | `Schrodinger.lean : unitary_preserves_K`, `K_pres_implies_transition_prob_pres`, `norm_sq_eq_implies_norm_eq`, `K_pres_implies_norm_inner_pres`, `schrodinger_derivation_chain`, `stone_gives_hermitian_generator`, `full_derivation_chain`, `inner_pres_iff_K_pres`; uses `ClassicalImports.wigner_continuity_unitary`, `ClassicalImports.stone_generator` | ⚠ Partial | Steps 1–2 (K-pres ⟹ unitary via Wigner + continuity) fully proved. Step 3 (existence of Hermitian generator) uses Stone as axiom; its current Lean witness is A = 0 (forward direction requires matrix-log theory not in Mathlib). See file headers for honesty notes. Matrix-exponential REVERSE direction fully proved (`ClassicalImports : exp_skewHermitian_unitary`, `skewHermitian_generator_gives_hermitian`, `exp_skewHermitian_group`, `exp_skewHermitian_id`) |
 
 ---
@@ -180,18 +188,18 @@ The six classical imports are listed in the final section. All file paths below 
 | Prop. `prop:capacity-bound` | Capacity as physical bound | `CapacityHalting.lean : single_measurement_bound`, `capacity_is_log_bits` | ✓ Proved | |
 | Def. `def:hv-assignment` | Hidden-variable assignment | `CapacityHalting.lean : HiddenVariableAssignment`, `hva_storage_exceeds_capacity` | ✓ Proved | |
 | Thm. `thm:capacity-halting` | Capacity halting principle | `CapacityHalting.lean : capacity_deficit`, `capacity_deficit_bits`, `assignment_count_exceeds_capacity`, `capacity_overflow_strict`, `storage_overflow_ratio`, `storage_overflow_multiplicative`, `assignment_exceeds_capacity_squared` | ⚠ Partial | Arithmetic inequalities `N^1 < N^(M−1)` and `log₂ N < (M−1) log₂ N` fully proved. The physical content (MUB geometry, Kochen–Specker, Chaitin incompressibility) is paper prose only; see file header and paper App. `app:formal-verification` |
-| Thm. `thm:ks-bits` | Kochen–Specker bit count | `CapacityHalting.lean : ks_bit_count_exceeds_capacity` | ⚠ Partial | log₂ N < N² arithmetic only; Ω(N²) KS projector lower bound is paper prose |
+| Thm. `thm:ks-bits` | Kochen–Specker bit count | `CapacityHalting.lean : ks_bit_count_exceeds_capacity` | ⚠ Partial | log₂ N < N² arithmetic only (qualitatively-correct loose form). The paper's sharper `(M-1) log₂ N` bit-count, scaling to Θ(N log₂ N) for prime-power N at M = N+1, is argued via MUB structure in `lem:incompressibility`(a) and is paper prose for the full KS projector geometry |
 | Lem. `lem:incompressibility` | Incompressibility (Chaitin) | `CapacityHalting.lean : incompressibility_combinatorial`, `mub_overlap_uniform` | ⚠ Partial | (a) combinatorial lower bound proved; (b) Kolmogorov-complexity refinement is paper prose |
 | Rem. `rem:mub-existence` | Existence of MUBs | `Scaling.lean : mub_full_tomography_params`, `mub_complete_characterization`, `mub_tomography_sufficient`, `mub_overlap_completeness` | ⚠ Partial | Counting identities proved; existence of N+1 MUBs (prime-power case) is paper prose |
-| Rem. `rem:compression-cannot-save` | Compression does not help | — | ✗ Not formalized | Prose only |
+| Rem. `rem:mub-existence` | Compression does not help | — | ✗ Not formalized | Prose only |
 | Rem. `rem:contextuality-overflow` | Contextuality as overflow | `CapacityHalting.lean : contextuality_storage_exceeds_capacity`, `contextuality_deficit_factor`, `contextuality_minimal_case`, `contextuality_full` | ⚠ Partial | Bit-count deficit only; full non-contextuality argument is paper prose |
 | Lem. `lem:affinity-normalization` | K-affinity normalization | `BornRule.lean : KAffinityNormalized`, `k_affinity_nonneg`, `k_affinity_le_one`, `k_affinity_prob_dist` | ✓ Proved | Σ(1 − K) = 1 as structural predicate |
 | Thm. `thm:prob-from-K` | Probabilities from K | `BornRule.lean : k_affinities_give_born_probabilities`, `k_affinities_born_normalized`, `k_affinity_born_valid`, `k_affinity_monotone`, `k_affinity_strict_monotone`, `k_affinity_max_at_zero`, `k_affinity_min_at_one`, `kolmogorov_from_K_structure` | ✓ Proved | Kolmogorov axioms from K-affinities |
 | Thm. `thm:contextuality` | Contextuality from finite capacity | `CapacityHalting.lean : contextuality_storage_exceeds_capacity`, `contextuality_full` | ⚠ Partial | Arithmetic part only |
 | Thm. `thm:entropy-floor` | Operational entropy floor | `Scaling.lean : entropy_range_nontrivial`, `entropic_uncertainty_nontrivial` | ⚠ Partial | log N > 0 for N ≥ 2; full entropy-floor geometry is prose |
-| Thm. `thm:conservation-ignorance` | Conservation of ignorance | — | ✗ Not formalized | Prose only |
+| Thm. `thm:entropy-floor` | Conservation of ignorance | — | ✗ Not formalized | Prose only |
 | Thm. `thm:continuum-limit` | Continuum limit → standard QM | — | ✗ Not formalized | Prose only |
-| Rem. `rem:entrenchment` | Entrenchment of finite N | — | ✗ Not formalized | Prose only |
+| Rem. `thm:continuum-limit` | Entrenchment of finite N | — | ✗ Not formalized | Prose only |
 | Def. `def:measurement-interaction` | Measurement as correlation formation | — | ✗ Not formalized | Prose definition |
 | Prop. `prop:measurement-born` | Measurement-Born correspondence | `BornRule.lean : k_affinities_give_born_probabilities`, `k_affinities_born_normalized` | ⚠ Partial | K-affinity-to-Born bridge proved; measurement-interaction framing is paper prose |
 | Rem. `rem:collapse` | Collapse as correlation formation | — | ✗ Not formalized | Prose only |
