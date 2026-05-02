@@ -2,7 +2,52 @@
 
 Reference: `QuantumMechanicsFromFiniteGradedEquality.tex` → `lean-verification/QuantumRelational/`
 
-Last updated: 2026-04-30
+Last updated: 2026-05-02 (SRC formalization closed sorry-free)
+
+## v2 update notes
+
+The paper was restructured to expose only TWO primitive axioms
+(`ax:finite` finite capacity + `ax:relational` Self-Referential
+Consistency); the eight named conditions (S1)-(S4), (I), (O), (T), (B)
+that previously appeared as separate sub-axioms are now derived in
+the Master Theorem `thm:src-master`. The Lean library was extended
+with `QuantumRelational/SRC.lean` carrying:
+
+1. The SRC predicate (`SelfReferentialConsistency`) bundling the
+   operational and information-theoretic forms.
+2. `definability_lemma` (paper Lemma `lem:definability`), proved
+   sorry-free.
+3. `saturation_hierarchy_general` (Master Theorem `thm:src-master`)
+   with all eight clauses derived from SRC + finite capacity for an
+   arbitrary K-symmetry σ, proved sorry-free. Identity-σ and
+   involutive-σ specializations (`saturation_hierarchy`,
+   `saturation_hierarchy_involutive`) are likewise sorry-free. The
+   eight projections `S1_identity`, `S2_completeness`, ...,
+   `B_basis_isotropy` are exposed individually.
+4. The K-amalgam construction (`Amalgam`, `K_amalgam`,
+   `Amalgam.swapEquiv_gen`, `swap_gen_K_pres`, `swap_gen_no_lift`)
+   supplying the structural-Leibniz step underlying (S4) for
+   arbitrary σ.
+5. Bridges `axiom2_from_SRC` and `structural_leibniz_from_SRC`
+   showing the v1 `Axiom1`/`Axiom2`/`StructuralLeibniz` packaging is
+   recovered from SRC + finite capacity.
+
+Every theorem above depends only on `[propext, Classical.choice,
+Quot.sound]` (verifiable via `lake env lean
+QuantumRelational/AxiomCheck.lean`).
+
+Several paper labels were renamed/cut in v2; the §3 and §6 sections
+below have been updated:
+- `thm:imperceptibility-connectedness` (v1) → `thm:imperceptibility-connectedness` (v2; renamed "Connectedness from Imperceptibility", part (a) extracted to `cor:k-image-full`).
+- `thm:complex` (v1) → cut; content subsumed in `lem:sheaf-complex`.
+- `thm:contextuality` (v1) → demoted to one-line corollary.
+
+A handful of label drifts in §10/§11/§12 (e.g. `thm:cyclic` →
+`thm:cyclic-spectrum`/`thm:dynamics-derived`, `thm:metric-bridge`
+absorbed into `thm:born-kernel` and `lem:metric-compatibility`,
+`thm:zeno-floor` and `cor:uv-cutoff` consolidated under
+`thm:quantum-sampling`) are out of scope for the v2 SRC sync but
+should be addressed in a follow-up cleanup of this document.
 
 ## Conventions
 
@@ -44,28 +89,71 @@ The five classical imports are listed in the final section. Stone's theorem is p
 
 ## §3 Relational Structure and Axioms (sec:axioms)
 
+**Paper v2 framing:** the paper now has only TWO primitive
+axioms, `ax:finite` (finite capacity N) and `ax:relational` (Self-Referential
+Consistency, SRC). The eight clauses (S1)-(S4), (I), (O), (T), (B) that
+were previously axiomatized are now derived as Theorem `thm:src-master`
+(the Master Theorem). The Lean library reflects this by introducing
+`SRC.lean`, which carries the v2 axioms and the master theorem closed
+sorry-free for an arbitrary K-symmetry σ; the `Axiom1`/`Axiom2`
+structures continue to bundle the *consequences* of SRC + finite
+capacity for downstream consumption. See `SRC.axiom2_from_SRC` for the
+formal bridge.
+
 | Paper Label | Name | Lean location | Status | Notes |
 |-------------|------|---------------|--------|-------|
 | Def. `def:dspace` | Distinguishability space | `Axioms.lean : DistinguishabilitySpace` | ✓ Proved | See §2 |
 | Rem. `rem:K-operational-status` | Operational status of K | — | ✗ Not formalized | Prose only |
 | Def. `def:basis` | Basis and capacity N | `Axioms.lean : BasisStructure` + `Axiom1.basis`, `Axiom1.basis_distinguishable` | ✓ Proved | N ≥ 2 required |
 | Def. `def:frame` | Measurement frame | — | ✗ Not formalized | Used only informally |
-| Def. `def:symmetry-group` | Symmetry group G | `Basic.lean : SymmetryGroup`, `Parsimony.lean : IsKernelAut` | ✓ Proved | Both K-preserving bijection bundle and predicate form |
-| Axiom `ax:finite` (1a) | Finite Capacity existence | `Axioms.lean : Axiom1` (fields `N`, `basis`, `basis_distinguishable`) | ✓ Proved | |
-| Axiom `ax:finite` (1b)(i) Identity | Identity of indiscernibles | `Axioms.lean : DistinguishabilitySpace.K_ident` | ✓ Proved | |
-| Axiom `ax:finite` (1b)(ii) Surjectivity | Every consistent profile is a state | — | ⚠ Partial | Not axiomatized; enters via explicit state-space realizations (Fin N, ℂP^(N-1)); discussed in `Axioms.lean` header |
-| Axiom `ax:finite` (1b)(iii) Finite determinacy | Basis-restricted saturation | `Axioms.lean : Axiom2.saturation` | ✓ Proved | Basis-restricted separating set |
-| Axiom `ax:finite` (1b)(iv) Structural Leibniz | K-symmetries extend globally | — | ⚠ Partial | Not axiomatized; used concretely via `finRotate N` instantiation; discussed in `Axioms.lean` header |
-| Rem. `rem:structural-leibniz-weight` | Weight of Structural Leibniz | — | ✗ Not formalized | Prose only |
+| Def. `def:symmetry-group` | Symmetry group G | `Basic.lean : SymmetryGroup`, `Parsimony.lean : IsKernelAut`, `SRC.lean : IsKAut`, `SRC.lean : Aut` | ✓ Proved | Bundle and predicate forms |
+| **Axiom `ax:finite`** | **Finite Capacity** | `Axioms.lean : Axiom1.N`, `Axiom1.basis`, `Axiom1.basis_distinguishable` | ✓ Stated | Paper v2 primitive axiom (only N, basis, basis-distinct). |
+| **Axiom `ax:relational`** | **Self-Referential Consistency (SRC)** | `SRC.lean : SelfReferentialConsistency` | ✓ Stated | Paper v2 primitive axiom. Bundle of (i) `no_richer_extension` (operational form) and (ii) `aut_invariant_definable` (information-theoretic form). |
+| **Lem. `lem:definability`** | **Definability under SRC** | `SRC.lean : definability_lemma`, `definability_lemma_binary` | ✓ Proved | k-ary version proved sorry-free; binary case exposed separately. |
+| **Thm. `thm:src-master`** | **Saturation hierarchy from SRC (Master Theorem)** | `SRC.lean : saturation_hierarchy_general` (general σ); `saturation_hierarchy` (identity σ); `saturation_hierarchy_involutive` (involutive σ) | ✓ Proved | All 8 clauses derived from SRC + finite capacity, sorry-free. Individual projections `S1_identity`, `S2_completeness`, `S3_finite_determinacy`, `S4_structural_leibniz`, `I_imperceptibility`, `O_operational_completeness`, `T_transport_consistency`, `B_basis_isotropy` exposed. Paper proof: §3, lines ~395-454. |
+| Thm. `thm:src-master`(S1) Identity | K-profiles separate states | `SRC.lean : S1_identity`, `S1_identity_direct`; `Axioms.lean : Axiom2.completeness`; `Parsimony.lean : axiom2_operationally_complete` | ✓ Proved | v2: derived sorry-free from SRC. v1 packaging: structure field `Axiom2.completeness`. |
+| Thm. `thm:src-master`(S2) Completeness | Every K-consistent profile is realised | `SRC.lean : S2_completeness`, `S2_completeness_direct` | ✓ Proved | v2: derived sorry-free from SRC. v1: implicit in the choice of state space (Fin N, ℂP^(N-1)). |
+| Thm. `thm:src-master`(S3) Finite Determinacy | Basis is a finite separating set | `SRC.lean : S3_finite_determinacy`, `S3_finite_determinacy_completely_unconditional`, `extend_oracle_from_SRC`; `Axioms.lean : Axiom2.saturation` | ✓ Proved | v2: derived sorry-free; the `extend_oracle` discharge bridges SRC + four kernel axioms + K_ident. v1 packaging: structure field `Axiom2.saturation`. |
+| Thm. `thm:src-master`(S4) Structural Leibniz | K-symmetries of finite configs extend globally | `SRC.lean : S4_structural_leibniz`, `S4_structural_leibniz_amalgam_general`, `structural_leibniz_from_SRC`; `Axioms.lean : StructuralLeibniz`, `permutation_invariance_abstract` | ✓ Proved | v2: derived sorry-free for arbitrary σ via the K-amalgam construction. v1: packaged abstractly as `StructuralLeibniz`; cyclic instance in `CyclicEigen.lean` via `finRotate N`. |
+| Thm. `thm:src-master`(I) Imperceptibility | K-image dense in [0,1] | `SRC.lean : I_imperceptibility`, `I_imperceptibility_direct` | ✓ Proved | v2: derived sorry-free. Paper proof uses convex-combination construction (lines ~437-445). |
+| Thm. `thm:src-master`(O) Operational Completeness | K(x,y) = 0 ⟹ x = y | `SRC.lean : O_operational_completeness`, `O_operational_completeness_direct`, `O_operational_completeness_metric`; `Axioms.lean : DistinguishabilitySpace.K_ident` | ✓ Proved | v2: derived sorry-free (direct from S1 at K=0; metric-typeclass form available). v1 packaging: structure field `DistinguishabilitySpace.K_ident`. |
+| Thm. `thm:src-master`(T) Transport Consistency | Aut-invariant features factor through K-profile | `SRC.lean : T_transport_consistency`, `T_transport_consistency_direct` | ✓ Proved | v2: derived sorry-free. v1: not axiomatised; prose only. |
+| Thm. `thm:src-master`(B) Basis Isotropy | G acts transitively on bases | `SRC.lean : B_basis_isotropy`, `B_basis_isotropy_direct`, `B_basis_isotropy_direct_amalgam` | ✓ Proved | v2: derived sorry-free. Paper proof: from S4 applied to bijection between bases. v1: enters concretely via Mathlib `UnitaryGroup`. |
+| K-amalgam construction | $X \sqcup_C X$ pushout-style space glued along a K-symmetry | `SRC.lean : Amalgam`, `K_amalgam`, `K_amalgam_refl`, `K_amalgam_symm`, `K_amalgam_nonneg`, `K_amalgam_le_one`, `Amalgam.swapEquiv_gen`, `Amalgam.swap_gen_K_pres`, `Amalgam.swap_gen_no_lift` | ✓ Proved | Inductive type with `gluing` and `gluing_swap` constructors; kernel laws verified; swap automorphism is K-preserving and non-liftable to a labelling extension. Underlies (S4) for arbitrary σ. |
+| Bridge: SRC + finite capacity ⇒ v1 `Axiom2` | Compatibility lemma | `SRC.lean : axiom2_from_SRC`, `structural_leibniz_from_SRC` | ✓ Proved | Constructive bridge from SRC + finite capacity to the v1 packaging. |
+| Def. `def:s5` | Structural Unambiguity (S5) | `MetricBridge.lean : MetricCompatible`, `metric_bridge`, `id_is_metric_compatible` | ⚠ Partial | S5 = Fisher-Rao = Fubini-Study consistency; mechanised as ODE uniqueness in Born rule chain. Itself derived for finite-N QM as Thm `thm:s5-finite-N`. |
+| Rem. `rem:axiom-counting` | Why SRC strength is necessary | — | ✗ Not formalized | Prose only |
+| Rem. `rem:structural-leibniz-weight` | Weight of Structural Leibniz | — | ✗ Not formalized | Prose only (v1 remark, retained in v2 commentary) |
 | Rem. `rem:finite-bandwidth` | Finite bandwidth interpretation | — | ✗ Not formalized | Prose only |
 | Rem. `rem:saturation-stability` | Dynamical stability of saturation | `Parsimony.lean : decoupling_dichotomy`, `decoupling_case_trivial`, `decoupling_case_detectable` | ✓ Proved | Formal version of the decoupling argument |
-| Axiom `ax:relational` (2a) Operational Completeness | K(x,y) = 0 ⟹ x = y | `Axioms.lean : DistinguishabilitySpace.K_ident` and `Axiom2.completeness` | ✓ Proved | |
-| Axiom `ax:relational` (2b) Transport consistency | Meaningful DOFs are K-comparable | — | ✗ Not formalized | Prose level; no free-floating DOFs |
-| Axiom `ax:relational` (2c) Basis isotropy | G acts transitively on bases | — | ⚠ Partial | Not axiomatized; Lie/unitary structure enters via Mathlib `UnitaryGroup`; see `Axioms.lean` header |
-| Thm. `thm:permutation-invariance` | Permutation invariance of basis K-values | `Basic.lean : single_basis_insufficient` (related); `CyclicEigen.lean : cyclic_group_structure` | ⚠ Partial | The paper's "forced by Structural Leibniz" direction is not proved; cyclic permutation instantiated directly |
+| Thm. `thm:permutation-invariance` | Permutation invariance of basis K-values | `Basic.lean : single_basis_insufficient` (related); `CyclicEigen.lean : cyclic_group_structure`; `Axioms.lean : permutation_invariance_abstract` | ⚠ Partial | v2: now a downstream consequence of (S4); abstract derivation in `permutation_invariance_abstract`; cyclic instance in `CyclicEigen`. |
 | Lem. `lem:dynamics-constitutive` | Dynamics is constitutive, not superadded | — | ✗ Not formalized | Paper narrative lemma |
-| Rem. `rem:axiom-independence` | Axiom independence | — | ✗ Not formalized | Prose only |
+| Rem. `rem:axiom-independence` | Axiom independence | — | ✗ Not formalized | Prose only (v1 remark) |
 | §3 Qutrit worked example `sec:example-n3` | N = 3 concrete computation | — | ✗ Not formalized | Illustrative prose |
+
+### v2 Axiom Layer Summary
+
+The Lean library realises the v2 axiom structure as follows:
+
+| Component | Lean | Status |
+|-----------|------|--------|
+| Axiom 1 (`ax:finite`) | `Axioms.lean : Axiom1` (N, basis, basis_distinguishable) | ✓ Stated |
+| Axiom 2 (`ax:relational`, SRC) | `SRC.lean : SelfReferentialConsistency` | ✓ Stated; operational and information-theoretic forms exposed as fields |
+| K-extension `(α, K) ↪ (β, K')` | `SRC.lean : KExtension` | ✓ Stated |
+| Strictly-richer relation | `SRC.lean : IsRicherThan` | ✓ Stated |
+| Aut-invariant predicates | `SRC.lean : IsAutInvariantBinary`, `IsAutInvariant` | ✓ Stated |
+| Definability Lemma (`lem:definability`) | `SRC.lean : definability_lemma`, `definability_lemma_binary` | ✓ Proved |
+| Master Theorem (`thm:src-master`) | `SRC.lean : saturation_hierarchy_general` (and `saturation_hierarchy`, `saturation_hierarchy_involutive`) | ✓ Proved; 8 clauses individually projected |
+| K-amalgam construction | `SRC.lean : Amalgam`, `K_amalgam`, `Amalgam.swapEquiv_gen`, `swap_gen_K_pres`, `swap_gen_no_lift` | ✓ Proved |
+| Bridge to v1 packaging | `SRC.lean : axiom2_from_SRC`, `structural_leibniz_from_SRC` | ✓ Proved |
+
+### Topological Consequences of the Axioms (sec:axiom-consequences)
+
+| Paper Label | Name | Lean location | Status | Notes |
+|-------------|------|---------------|--------|-------|
+| Lem. `lem:compactness-from-capacity` | Compactness of α via K-profile homeomorphism | — | ✗ Not formalized | Argued via K-profile map being a homeomorphism onto a compact subset of `[0,1]^N`; uses (S1), (S3), and joint K-continuity. |
+| Cor. `cor:k-image-full` | K-image equals `[0,1]`, M(K) = ∞ | — | ✗ Not formalized | Was part (a) of the former `thm:imperceptibility-connectedness`; promoted to its own corollary in v2. Closed dense subset of `[0,1]` is `[0,1]`. |
+| Thm. `thm:imperceptibility-connectedness` | Connectedness from Imperceptibility (b) | — | ✗ Not formalized | **Renamed from "Imperceptibility-Connectedness equivalence" in v2 to "Connectedness from Imperceptibility"; only part (b) (path-connectedness via the structural identification α ≅ FP^(N-1)) survives. Part (a) (closure-of-K-image-is-[0,1]) is now `cor:k-image-full`.** |
 
 ---
 
@@ -135,7 +223,7 @@ The five classical imports are listed in the final section. Stone's theorem is p
 |-------------|------|---------------|--------|-------|
 | Thm. `thm:n2-static` | N = 2 is static / no continuous dynamics | `CyclicEigen.lean : N2_eigenvalues_real`; `SwapMatrix.lean : S_sq_eq_one`, `S_eigenvalues_pm1`, `commuting_with_S_form`, `real_orthogonal_commuting_discrete` | ✓ Proved | Both eigenvalue form (±1 real) and swap-matrix rigidity (discrete {I, −I, S, −S}) |
 | Rem. `rem:n2-interpretation` | Interpretation of the N = 2 exception | — | ✗ Not formalized | Prose only |
-| Thm. `thm:complex` | Emergence of complex numbers | `CyclicEigen.lean : complex_forced`; `Frobenius.lean : C_is_unique_field`, `frobenius_forces_complex` | ⚠ Partial | Non-real eigenvalue for N ≥ 3 is fully proved; uniqueness depends on imported Frobenius axiom |
+| (deleted: `thm:complex`) | Emergence of complex numbers — content subsumed in `lem:sheaf-complex` | `CyclicEigen.lean : complex_forced`; `Frobenius.lean : C_is_unique_field`, `frobenius_forces_complex` | ⚠ Partial | Paper label removed; the non-real-eigenvalue argument is now packaged inside `lem:sheaf-complex` (and `Frobenius.frobenius_forces_complex` for the field-uniqueness side). The Lean theorems remain as before; only the paper label changed. |
 | Thm. `thm:inner-product-existence` | Inner product from K | `InnerProduct.lean : kernel_from_inner_product`, `kernel_reflexive`, `kernel_symmetric`, `K_eq_one_iff_orthogonal`, `inner_product_from_kernel_basis`, `standard_basis_orthonormal`, `kernel_standard_basis`, `inner_product_sesquilinear` | ✓ Proved | Standard-basis construction and uniqueness-on-basis (sesquilinear extension) |
 | Rem. `rem:fourier-inner-product` | Fourier inner product | `Fourier.lean : roots_of_unity_orthogonality`, `fourier_orthonormal` | ✓ Proved | Discrete Fourier orthogonality |
 | Thm. `thm:kernel-inner` | K = 1 − \|⟨·\|·⟩\|² (kernel from inner product) | `InnerProduct.lean : kernel_from_inner_product`, `kernel_reflexive`, `K_eq_one_iff_orthogonal`; `FubiniStudy.lean : K_equals_projection_distance` | ✓ Proved | Both the analytic formula and its projection-distance interpretation |
@@ -195,7 +283,7 @@ The five classical imports are listed in the final section. Stone's theorem is p
 | Rem. `rem:contextuality-overflow` | Contextuality as overflow | `CapacityHalting.lean : contextuality_storage_exceeds_capacity`, `contextuality_deficit_factor`, `contextuality_minimal_case`, `contextuality_full` | ⚠ Partial | Bit-count deficit only; full non-contextuality argument is paper prose |
 | Lem. `lem:affinity-normalization` | K-affinity normalization | `BornRule.lean : KAffinityNormalized`, `k_affinity_nonneg`, `k_affinity_le_one`, `k_affinity_prob_dist` | ✓ Proved | Σ(1 − K) = 1 as structural predicate |
 | Thm. `thm:prob-from-K` | Probabilities from K | `BornRule.lean : k_affinities_give_born_probabilities`, `k_affinities_born_normalized`, `k_affinity_born_valid`, `k_affinity_monotone`, `k_affinity_strict_monotone`, `k_affinity_max_at_zero`, `k_affinity_min_at_one`, `kolmogorov_from_K_structure` | ✓ Proved | Kolmogorov axioms from K-affinities |
-| Thm. `thm:contextuality` | Contextuality from finite capacity | `CapacityHalting.lean : contextuality_storage_exceeds_capacity`, `contextuality_full` | ⚠ Partial | Arithmetic part only |
+| Cor. `thm:contextuality` | Kochen--Specker contextuality (now a one-line corollary) | `CapacityHalting.lean : contextuality_storage_exceeds_capacity`, `contextuality_full` | ⚠ Partial | Demoted from theorem to corollary in paper v2; arithmetic part only in Lean. |
 | Thm. `thm:entropy-floor` | Operational entropy floor | `Scaling.lean : entropy_range_nontrivial`, `entropic_uncertainty_nontrivial` | ⚠ Partial | log N > 0 for N ≥ 2; full entropy-floor geometry is prose |
 | Thm. `thm:entropy-floor` | Conservation of ignorance | — | ✗ Not formalized | Prose only |
 | Thm. `thm:continuum-limit` | Continuum limit → standard QM | — | ✗ Not formalized | Prose only |

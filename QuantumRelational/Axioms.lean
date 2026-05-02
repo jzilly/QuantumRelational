@@ -7,23 +7,56 @@
   These are the two foundational axioms from which all of quantum mechanics
   is derived in the paper.
 
+  **Paper v2 framing note (added 2026-04-30).**
+
+  In the v2 paper (`QuantumMechanicsFromFiniteGradedEquality.tex`), the
+  framework has only TWO primitive axioms: `ax:finite` (finite capacity
+  N) and `ax:relational` (Self-Referential Consistency, SRC). The eight
+  named sub-clauses (S1)--(S4), (I), (O), (T), (B) that previously
+  appeared as separate axioms or sub-axioms are now THEOREMS, derived
+  from SRC + finite capacity in the Master Theorem `thm:src-master`.
+
+  The v2 axioms are formalised in `QuantumRelational/SRC.lean`; the
+  bridge `SRC.axiom2_from_SRC` shows that any space satisfying SRC +
+  finite capacity also satisfies the structure recorded by `Axiom2`
+  below. The Lean structures `Axiom1` and `Axiom2` in this file are
+  preserved as the *consumption interface* used by all downstream files
+  (`Parsimony`, `CyclicEigen`, `CapacityHalting`, ...): they bundle the
+  *consequences* of SRC + finite capacity in a directly-usable form,
+  with each field corresponding to a clause of `thm:src-master`. The
+  v1-vs-v2 axiom-counting question is settled in the paper, not in the
+  Lean library; the Lean library carries the structural derivation.
+
   **Scope note (axiom formalization vs. paper):**
 
-  The paper's axioms (§3 / `sec:axioms`) have several named sub-components:
+  The paper's axioms (v1 §3 / `sec:axioms`) had several named
+  sub-components, all of which are now derived clauses of
+  `thm:src-master`:
 
     Axiom 1 (Finite Capacity with Saturation):
-      (1a) Existence: every basis has N elements
+      (1a) Existence: every basis has N elements (paper Ax. `ax:finite`).
       (1b)(i) Identity/injectivity: K(x,z) = K(y,z) ∀z ⟹ x = y
+              (now Theorem `thm:src-master`(S1)).
       (1b)(ii) Completeness/surjectivity: every consistent K-profile is a state
+              (now Theorem `thm:src-master`(S2)).
       (1b)(iii) Finite determinacy: finite separating set S
+              (now Theorem `thm:src-master`(S3)).
       (1b)(iv) Structural Leibniz: K-symmetries of finite configs extend globally
+              (now Theorem `thm:src-master`(S4)).
       (1c) Connectedness: α is connected in the K-pseudometric topology
-           (continuity of K is automatic in this topology, not an axiom)
+           (continuity of K is automatic in this topology, not an axiom).
 
     Axiom 2 (Universal Relationality):
       (2a) Operational Completeness: K(x,y) = 0 ⟹ x = y
+              (now Theorem `thm:src-master`(O)).
       (2b) Transport Consistency: meaningful DOFs are K-comparable
+              (now Theorem `thm:src-master`(T)).
       (2c) Basis Isotropy: symmetry group acts transitively on bases
+              (now Theorem `thm:src-master`(B)).
+
+  Imperceptibility (`thm:src-master`(I)) is the eighth derived clause;
+  the v1 paper recorded it as an `(1c)`-style commitment, which is now
+  also a theorem.
 
   This Lean formalization captures the components that enter the
   mechanized proofs:

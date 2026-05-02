@@ -24,6 +24,23 @@
     - `QuantumRelational.ClassicalImports.frobenius_classification`
     - `QuantumRelational.Composite.aczel_continuous_associative_is_mul`
 
+  **v2 SRC layer (paper v2):**
+  The v2 paper has only two primitive axioms: `ax:finite` (finite
+  capacity N) and `ax:relational` (Self-Referential Consistency, SRC).
+  The eight derived clauses (S1)-(S4), (I), (O), (T), (B) are
+  THEOREMS via `thm:src-master`. The Lean encoding lives in
+  `QuantumRelational/SRC.lean`. The master theorem
+  `saturation_hierarchy_general`, its eight projections, and the
+  `definability_lemma` are all proved sorry-free, depending only on
+  `[propext, Classical.choice, Quot.sound]`. The K-amalgam
+  infrastructure (`Amalgam`, `K_amalgam`, `Amalgam.swapEquiv_gen`,
+  `swap_gen_K_pres`, `swap_gen_no_lift`) supplies the structural-Leibniz
+  step. The `Axiom1`/`Axiom2` structures used by the rest of the
+  library bundle the *consequences* of SRC + finite capacity in a
+  directly-consumable form (see `Axioms.lean` doc-header). See bridge
+  theorems `SRC.axiom2_from_SRC` and `SRC.structural_leibniz_from_SRC`
+  for the formal connection.
+
   Note: `IsFinDimAssocDivAlgDim` is a `def`, not an axiom (it is a
   `Prop`-valued predicate used as a hypothesis in the `frobenius_classification`
   axiom above). Stone's theorem is NOT an axiom in this library; `stone_generator`
@@ -78,6 +95,7 @@ import QuantumRelational.Main
 import QuantumRelational.BornRuleN2
 import QuantumRelational.Schrodinger
 import QuantumRelational.FubiniStudy
+import QuantumRelational.SRC
 
 namespace QuantumRelational.AxiomCheck
 
@@ -163,5 +181,107 @@ namespace QuantumRelational.AxiomCheck
 
 -- Consumes `picard_lindelof_unique`:
 #print axioms QuantumRelational.Schrodinger.stone_generator_unique_of_local_agreement
+
+-- ============================================================
+-- v2 SRC layer (Saturation hierarchy from SRC + finite capacity)
+-- ============================================================
+--
+-- The eight clauses of the Master Theorem `thm:src-master`, each
+-- projected from the unified `saturation_hierarchy_general`. The
+-- paper's proofs are at lines ~395--454 of
+-- `QuantumMechanicsFromFiniteGradedEquality.tex`.
+--
+-- The general-σ master theorem `saturation_hierarchy_general` and
+-- the eight per-clause projections (S1)-(S4), (I), (O), (T), (B)
+-- are all sorry-free, depending only on
+-- `[propext, Classical.choice, Quot.sound]`. The identity-σ
+-- specialization `saturation_hierarchy` and the involutive-σ
+-- specialization `saturation_hierarchy_involutive` are likewise
+-- sorry-free.
+--
+-- Structural-Leibniz (S4) for arbitrary σ ∈ Equiv.Perm (Fin m) is
+-- closed via the K-amalgam infrastructure
+-- (`Amalgam`, `K_amalgam`, `Amalgam.swapEquiv_gen`,
+-- `swap_gen_K_pres`, `swap_gen_no_lift`); the `gluing_swap`
+-- constructor on `AmalgamRel` lets the swap descend to the
+-- quotient without involutivity, so the witness inputs collapse
+-- from four conjuncts (involutive case) to three (general case).
+
+#print axioms QuantumRelational.SRC.saturation_hierarchy
+#print axioms QuantumRelational.SRC.saturation_hierarchy_involutive
+#print axioms QuantumRelational.SRC.saturation_hierarchy_general
+#print axioms QuantumRelational.SRC.S1_identity
+#print axioms QuantumRelational.SRC.S2_completeness
+#print axioms QuantumRelational.SRC.S3_finite_determinacy
+#print axioms QuantumRelational.SRC.S4_structural_leibniz
+#print axioms QuantumRelational.SRC.I_imperceptibility
+#print axioms QuantumRelational.SRC.O_operational_completeness
+#print axioms QuantumRelational.SRC.T_transport_consistency
+#print axioms QuantumRelational.SRC.B_basis_isotropy
+#print axioms QuantumRelational.SRC.definability_lemma
+
+-- Direct (sorry-free) standalone lemmas for the proven clauses.
+-- These bypass the master-theorem packaging and so do not pick up the
+-- residual `sorryAx` from clauses that remain admitted.
+#print axioms QuantumRelational.SRC.S1_identity_direct
+#print axioms QuantumRelational.SRC.S2_completeness_direct
+#print axioms QuantumRelational.SRC.T_transport_consistency_direct
+#print axioms QuantumRelational.SRC.O_operational_completeness_direct
+#print axioms QuantumRelational.SRC.I_imperceptibility_direct
+
+-- (O) Operational Completeness via the `MetricKernel` typeclass wrapper:
+-- discharges the triangle-inequality hypothesis structurally and gives
+-- an unconditional (O) at the cost of an explicit kernel-triangle field.
+-- See SRC.lean §4.5 (anchor: TRIANGLE-WRAPPER-O) for the rationale.
+#print axioms QuantumRelational.SRC.O_operational_completeness_metric
+#print axioms QuantumRelational.SRC.O_operational_completeness_dominates_d
+
+-- (S4) Structural Leibniz: identity-permutation special case and a
+-- direct form parameterised by the K-amalgam construction.
+#print axioms QuantumRelational.SRC.S4_structural_leibniz_id
+#print axioms QuantumRelational.SRC.S4_structural_leibniz_direct
+
+-- (S4) amalgam-infrastructure form (involutive σ): closes (S4) via the
+-- K-amalgam construction (KExtension packaging + non-lift) under four
+-- named structural hypotheses (involutivity, pointwise σ-K-symmetry,
+-- Amalgam.inl injectivity, K_amalgam identity-of-indiscernibles).
+#print axioms QuantumRelational.SRC.S4_structural_leibniz_amalgam_involutive
+#print axioms QuantumRelational.SRC.amalgam_witness_involutive
+#print axioms QuantumRelational.SRC.KExtensionAmalgam
+#print axioms QuantumRelational.SRC.Amalgam.swapEquiv
+#print axioms QuantumRelational.SRC.Amalgam.swap_K_pres
+#print axioms QuantumRelational.SRC.Amalgam.swap_no_lift
+#print axioms QuantumRelational.SRC.Amalgam.swap_inl_cfg
+
+-- (B) Basis Isotropy: direct form parameterised by the paper-form
+-- function-version of (S4).
+#print axioms QuantumRelational.SRC.B_basis_isotropy_direct
+
+-- (B) alternative direct form: parameterised by the K-amalgam
+-- construction directly (mirrors `S4_structural_leibniz_direct`'s
+-- amalgam_witness).
+#print axioms QuantumRelational.SRC.B_basis_isotropy_direct_amalgam
+
+-- (B) alternative angles: the permuted-basis sub-case, the orbit-class
+-- factoring via (T), and the orbit-classifier form.
+#print axioms QuantumRelational.SRC.B_basis_isotropy_permuted
+#print axioms QuantumRelational.SRC.B_basis_isotropy_via_orbit_definability
+#print axioms QuantumRelational.SRC.B_basis_isotropy_orbit_classifier
+
+-- Bridge: SRC + finite capacity ⇒ v1 Axiom2 packaging.
+#print axioms QuantumRelational.SRC.axiom2_from_SRC
+#print axioms QuantumRelational.SRC.structural_leibniz_from_SRC
+
+-- (S3) chain integration: `extend_oracle` discharge from SRC + the
+-- four kernel axioms + K_ident, plus the `aut_xy_basis_transitive`
+-- bridges and the unconditional / via-augB tightenings of
+-- `S3_finite_determinacy`.
+#print axioms QuantumRelational.SRC.extend_oracle_from_SRC
+#print axioms QuantumRelational.SRC.extend_oracle_from_SRC_aux
+#print axioms QuantumRelational.SRC.aut_xy_basis_transitive_from_augB
+#print axioms QuantumRelational.SRC.aut_xy_basis_transitive_from_B_via_basis
+#print axioms QuantumRelational.SRC.aut_xy_basis_transitive_from_bareB_and_fixator_pulled
+#print axioms QuantumRelational.SRC.S3_finite_determinacy_completely_unconditional
+#print axioms QuantumRelational.SRC.S3_finite_determinacy_via_augB
 
 end QuantumRelational.AxiomCheck

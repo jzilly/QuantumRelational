@@ -16,6 +16,9 @@
 \#*\#
 .\#*
 
+# Local working backups (e.g. SRC.lean.backup_pre_*)
+*.backup_*
+
 # Output / log files
 *.log
 *.aux

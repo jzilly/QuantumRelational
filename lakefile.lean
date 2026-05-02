@@ -14,6 +14,7 @@ lean_lib QuantumRelational where
   srcDir := "."
   roots := #[
     `QuantumRelational.Axioms,
+    `QuantumRelational.SRC,
     `QuantumRelational.Basic,
     `QuantumRelational.ClassicalImports,
     `QuantumRelational.Parsimony,
