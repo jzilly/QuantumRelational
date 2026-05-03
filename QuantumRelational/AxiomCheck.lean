@@ -41,6 +41,24 @@
   theorems `SRC.axiom2_from_SRC` and `SRC.structural_leibniz_from_SRC`
   for the formal connection.
 
+  **(S3) restatement (paper revision May 2026).**
+  The clause (S3) of `thm:src-master` was restated. The previous
+  reading "K-profile equality on a basis implies state equality" is
+  genuinely false in CP^{N-1}: orthogonal rays can share basis
+  K-profiles. The new (S3) is **Basis-Profile Symmetry** (paper line
+  390): equal basis profiles yield only the existence of an
+  Aut-element fixing the basis pointwise and swapping x ↔ y, NOT
+  state equality. The new clause follows directly from (S4) applied
+  to the configuration C := S ∪ {x, y} with the involution swapping
+  x ↔ y while fixing S, and is exposed as
+  `S3_basis_profile_symmetry` (master-theorem projection) and
+  `S3_basis_profile_symmetry_direct` (standalone). The auxiliary
+  chain `S3_finite_determinacy_*`, `aut_xy_basis_transitive_*`,
+  `extend_oracle_from_SRC`, etc., that targeted the v1 reading was
+  deleted in this revision (their hypotheses were paper-equivalent
+  to false-in-QM bipartition-trivialisation; see SRC.lean §4.3-§4.4
+  anchor `S3-OLD-DELETED` for the deletion record).
+
   Note: `IsFinDimAssocDivAlgDim` is a `def`, not an axiom (it is a
   `Prop`-valued predicate used as a hypothesis in the `frobenius_classification`
   axiom above). Stone's theorem is NOT an axiom in this library; `stone_generator`
@@ -212,7 +230,12 @@ namespace QuantumRelational.AxiomCheck
 #print axioms QuantumRelational.SRC.saturation_hierarchy_general
 #print axioms QuantumRelational.SRC.S1_identity
 #print axioms QuantumRelational.SRC.S2_completeness
-#print axioms QuantumRelational.SRC.S3_finite_determinacy
+-- (S3) is now the new Basis-Profile Symmetry statement (paper line
+-- 390); the old `S3_finite_determinacy` projection name has been
+-- replaced by `S3_basis_profile_symmetry` to match the paper's
+-- restated clause.
+#print axioms QuantumRelational.SRC.S3_basis_profile_symmetry
+#print axioms QuantumRelational.SRC.S3_basis_profile_symmetry_direct
 #print axioms QuantumRelational.SRC.S4_structural_leibniz
 #print axioms QuantumRelational.SRC.I_imperceptibility
 #print axioms QuantumRelational.SRC.O_operational_completeness
@@ -268,20 +291,13 @@ namespace QuantumRelational.AxiomCheck
 #print axioms QuantumRelational.SRC.B_basis_isotropy_via_orbit_definability
 #print axioms QuantumRelational.SRC.B_basis_isotropy_orbit_classifier
 
--- Bridge: SRC + finite capacity ⇒ v1 Axiom2 packaging.
+-- Bridge: SRC + finite capacity ⇒ v1 Axiom2 packaging. The
+-- `axiom2_from_SRC` bridge now takes the v1 `saturation` field as an
+-- explicit input (since the v1 reading "K-profile equality on a basis
+-- ⟹ x = y" is genuinely false in CP^{N-1} and cannot be derived
+-- from SRC + finite capacity). The new SRC-derivable (S3) is the
+-- Basis-Profile Symmetry statement above.
 #print axioms QuantumRelational.SRC.axiom2_from_SRC
 #print axioms QuantumRelational.SRC.structural_leibniz_from_SRC
-
--- (S3) chain integration: `extend_oracle` discharge from SRC + the
--- four kernel axioms + K_ident, plus the `aut_xy_basis_transitive`
--- bridges and the unconditional / via-augB tightenings of
--- `S3_finite_determinacy`.
-#print axioms QuantumRelational.SRC.extend_oracle_from_SRC
-#print axioms QuantumRelational.SRC.extend_oracle_from_SRC_aux
-#print axioms QuantumRelational.SRC.aut_xy_basis_transitive_from_augB
-#print axioms QuantumRelational.SRC.aut_xy_basis_transitive_from_B_via_basis
-#print axioms QuantumRelational.SRC.aut_xy_basis_transitive_from_bareB_and_fixator_pulled
-#print axioms QuantumRelational.SRC.S3_finite_determinacy_completely_unconditional
-#print axioms QuantumRelational.SRC.S3_finite_determinacy_via_augB
 
 end QuantumRelational.AxiomCheck

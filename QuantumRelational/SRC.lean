@@ -49,7 +49,7 @@
     `saturation_hierarchy_involutive` (involutive σ) are likewise
     sorry-free.
   - Eight individual theorems `S1_identity`, `S2_completeness`,
-    `S3_finite_determinacy`, `S4_structural_leibniz`,
+    `S3_basis_profile_symmetry`, `S4_structural_leibniz`,
     `I_imperceptibility`, `O_operational_completeness`,
     `T_transport_consistency`, `B_basis_isotropy`, each obtained as
     a projection of the master theorem and individually citable.
@@ -857,1055 +857,56 @@ theorem I_imperceptibility_direct
 -- references to these names remain in the codebase.
 -- ============================================================
 
-/-- **(S3) Finite Determinacy, direct from SRC (conditional form).**
-
-    **The claim.** Equal K-profiles against a basis imply equal states:
-    if `∀ i, K x (basis i) = K y (basis i)` then `x = y`.
-
-    **The substantive content.** The paper's proof of (S3) at lines
-    ~402--418 of `QuantumMechanicsFromFiniteGradedEquality.tex` proceeds
-    by contradiction. Suppose `x ≠ y` but `Π_S(x) = Π_S(y)` for the
-    given basis `S`. By (S1) (`S1_identity_direct`), there exists
-    `w_0 ∈ α` with `K(x, w_0) ≠ K(y, w_0)`. By Axiom~1 (finite
-    capacity), the singleton `{w_0}` extends to a maximal MFD set
-    `T_0 ∈ \mathfrak{B}`, hence `Π_{T_0}(x) ≠ Π_{T_0}(y)`. The
-    bipartition argument on the basis manifold (using the categorical
-    form of SRC and the binary Definability Lemma) then forces
-    `Q_{xy}(T') := [\Pi_{T'}(x) = \Pi_{T'}(y)]` to be either constantly
-    true or constantly false on bases. Both options contradict either
-    `\Pi_S(x) = \Pi_S(y)` or `\Pi_{T_0}(x) \neq \Pi_{T_0}(y)`.
-
-    **The bridging hypothesis.** This Lean encoding takes the basis-
-    extension + Aut-transitivity content as a typed hypothesis
-    `basis_separates`: any two states agreeing on the supplied basis
-    profile must agree on every K-profile. This is the structural
-    invariant that the paper derives from Axiom~1 (basis-extension)
-    plus the binary Definability Lemma (paper Lemma `lem:definability`,
-    proved here as `definability_lemma_binary`) plus Aut-transitivity
-    on bases (paper clause (B), derived from (S4)). Once `basis_separates`
-    is supplied, (S3) follows from (S1) `S1_identity_direct` directly.
-    The hypothesis `basis_separates` is paper-equivalent to the
-    bipartition-trivialisation conclusion of (S3)'s mid-step.
-    Discharging it requires either (B), (S4), and the basis-extension
-    lemma, all of which require infrastructure beyond the binary
-    Definability Lemma we have at hand.
-
-    **Lean status:** PROVED, conditional on `basis_separates`. The
-    unconditional version awaits mechanisation of (B)/(S4) and the
-    basis-extension lemma; see the SORRY in `saturation_hierarchy.S3`
-    and paper proof at lines 402-418. -/
-theorem S3_finite_determinacy_direct
-    (K : α → α → ℝ)
-    (hSRC : SelfReferentialConsistency K)
-    {N : ℕ} (basis : Fin N → α)
-    (basis_separates :
-      ∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) →
-        ∀ z : α, K x z = K y z) :
-    ∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) → x = y := by
-  intro x y hbasis_eq
-  -- Lift basis-K-equality to global K-equality via the structural hypothesis.
-  have hKeq : ∀ z, K x z = K y z := basis_separates x y hbasis_eq
-  -- Apply (S1) to conclude x = y.
-  exact S1_identity_direct K hSRC x y hKeq
-
-/-- **(S3) Finite Determinacy from Axiom 1 + bipartition trivialisation.**
-
-    A genuinely sharper conditional form of (S3) than
-    `S3_finite_determinacy_direct`. It refines the monolithic
-    `basis_separates` hypothesis into two independent, paper-named
-    hypotheses, each of which corresponds to a precise piece of
-    upstream infrastructure not yet formalised in this file:
-
-      (H1) `basis_extension` (Axiom~1 content, paper line 412):
-           every singleton `{w_0} ⊂ α` extends to a maximal MFD set
-           (= a basis of size `N`).
-      (H2) `bipartition_trivialises` (paper line 416, the bipartition
-           argument on the basis manifold `\mathfrak{B}`): if some
-           basis confuses `(x, y)` (i.e., `Π_T(x) = Π_T(y)` for some
-           basis `T`), then *every* basis confuses `(x, y)`. This is
-           the paper-level conclusion that the bipartition
-           `{Q_{xy} = 0} ⊔ {Q_{xy} = 1}` of `\mathfrak{B}` is trivial,
-           obtained from the categorical form of SRC + Aut-orbit
-           transitivity on `\mathfrak{B}` (= clause (B), itself proved
-           from (S4)).
-
-    Given these two pieces, the proof is direct: the supplied `basis`
-    (with `basis_dist`) witnesses the existential premise of (H2),
-    yielding the universal form; then (H1) provides, for every `z ∈ α`,
-    a basis containing `z`, and the universal form applied at the
-    corresponding index gives `K x z = K y z`. Finally, (S1)
-    (`S1_identity_direct`) concludes `x = y`.
-
-    **Comparison with `basis_separates`.** The hypothesis
-    `basis_separates` of `S3_finite_determinacy_direct` is structurally
-    equivalent to the conjunction (H1) ∧ (H2) at the level of the
-    K-profile-equality conclusion: this lemma decomposes that
-    conjunction into two paper-level pieces, each individually
-    discharge-able. Discharging (H1) is unfolding Axiom~1; discharging
-    (H2) is the paper's bipartition step (line 416 of
-    `QuantumMechanicsFromFiniteGradedEquality.tex`), which formally
-    requires the k-ary Definability Lemma (Lemma `lem:definability`,
-    `definability_lemma` in this file, currently `sorry`) plus
-    Aut-transitivity on the basis manifold (= clause (B), proved
-    elsewhere in this file conditional on (S4)).
-
-    **Lean status:** PROVED, conditional on (H1) and (H2). Does not
-    use the original `basis_separates` hypothesis. Adds no `sorry`. -/
-theorem S3_finite_determinacy_from_axiom1
-    (K : α → α → ℝ)
-    (hSRC : SelfReferentialConsistency K)
-    {N : ℕ} (basis : Fin N → α)
-    (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1)
-    (basis_extension :
-      ∀ w_0 : α, ∃ T : Fin N → α,
-        (∃ i₀ : Fin N, T i₀ = w_0) ∧
-        (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1))
-    (bipartition_trivialises :
-      ∀ x y : α,
-        (∃ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) ∧
-              (∀ i : Fin N, K x (T i) = K y (T i))) →
-        (∀ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) →
-              (∀ i : Fin N, K x (T i) = K y (T i)))) :
-    ∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) → x = y := by
-  intro x y hbasis_eq
-  -- Step 1. Build the existential witness from basis_dist + hbasis_eq:
-  -- the supplied basis confuses (x, y).
-  have h_exists : ∃ T : Fin N → α,
-      (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) ∧
-      (∀ i : Fin N, K x (T i) = K y (T i)) :=
-    ⟨basis, basis_dist, hbasis_eq⟩
-  -- Step 2. Apply bipartition_trivialises to get the universal form:
-  -- every basis confuses (x, y).
-  have h_universal := bipartition_trivialises x y h_exists
-  -- Step 3. For every z ∈ α, basis_extension gives a basis T_z with
-  -- T_z i₀ = z; h_universal applied to T_z at index i₀ gives K x z = K y z.
-  have hKeq : ∀ z : α, K x z = K y z := by
-    intro z
-    obtain ⟨T_z, ⟨i₀, hT_z_i₀⟩, hT_z_basis⟩ := basis_extension z
-    have h_at_i₀ : K x (T_z i₀) = K y (T_z i₀) :=
-      h_universal T_z hT_z_basis i₀
-    rw [hT_z_i₀] at h_at_i₀
-    exact h_at_i₀
-  -- Step 4. Apply (S1) Identity to conclude x = y.
-  exact S1_identity_direct K hSRC x y hKeq
-
-/-- **`basis_separates` from Axiom 1 + bipartition trivialisation.**
-
-    The structural-invariant form: derive the `basis_separates`
-    hypothesis (used by `S3_finite_determinacy_direct`) from the same
-    two paper-level pieces (H1) `basis_extension` and (H2)
-    `bipartition_trivialises` plus `basis_dist`. Useful for callers
-    that want to instantiate `S3_finite_determinacy_direct` from
-    Axiom 1 content directly, without reproving (S1) inside.
-
-    **Lean status:** PROVED, conditional on (H1) and (H2). -/
-theorem basis_separates_from_axiom1
-    (K : α → α → ℝ)
-    {N : ℕ} (basis : Fin N → α)
-    (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1)
-    (basis_extension :
-      ∀ w_0 : α, ∃ T : Fin N → α,
-        (∃ i₀ : Fin N, T i₀ = w_0) ∧
-        (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1))
-    (bipartition_trivialises :
-      ∀ x y : α,
-        (∃ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) ∧
-              (∀ i : Fin N, K x (T i) = K y (T i))) →
-        (∀ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) →
-              (∀ i : Fin N, K x (T i) = K y (T i)))) :
-    ∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) →
-      ∀ z : α, K x z = K y z := by
-  intro x y hbasis_eq z
-  -- Same structure as `S3_finite_determinacy_from_axiom1` but stops
-  -- before applying (S1).
-  have h_exists : ∃ T : Fin N → α,
-      (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) ∧
-      (∀ i : Fin N, K x (T i) = K y (T i)) :=
-    ⟨basis, basis_dist, hbasis_eq⟩
-  have h_universal := bipartition_trivialises x y h_exists
-  obtain ⟨T_z, ⟨i₀, hT_z_i₀⟩, hT_z_basis⟩ := basis_extension z
-  have h_at_i₀ : K x (T_z i₀) = K y (T_z i₀) :=
-    h_universal T_z hT_z_basis i₀
-  rw [hT_z_i₀] at h_at_i₀
-  exact h_at_i₀
-
 -- ============================================================
--- §4.4. (S3) Tier-2 sub-cases (S3-bipartition-agent).
+-- §4.3-§4.4. (S3) auxiliary chain — DELETED.
+--
+-- Anchor: S3-OLD-DELETED.
+--
+-- **History.** Earlier rounds of work proved (S3) under the v1 paper
+-- reading "K-profile equality on a basis ⟹ x = y", via a long chain
+-- of typed structural hypotheses (`basis_separates`, `basis_extension`,
+-- `bipartition_trivialises`, `aut_xy_basis_transitive`, augmented (B)).
+-- The chain produced the following theorems, each depending on
+-- hypotheses paper-equivalent to "the basis is a separating set":
+--
+--   • `S3_finite_determinacy_direct`             (basis_separates)
+--   • `S3_finite_determinacy_from_axiom1`        (bipartition_trivialises)
+--   • `S3_finite_determinacy_unconditional`      (aut_xy_basis_transitive)
+--   • `S3_finite_determinacy_completely_unconditional`  (idem)
+--   • `S3_finite_determinacy_via_augB`           (augmented (B))
+--   • `bipartition_trivialises_from_definability`
+--   • `aut_xy_basis_transitive_from_augB`
+--   • `aut_xy_basis_transitive_from_B_via_basis`
+--   • `aut_xy_basis_transitive_from_bareB_and_fixator_pulled`
+--   • `extend_oracle_from_SRC`, `extend_oracle_from_SRC_aux`
+--   • `basis_separates_from_axiom1`,
+--     `basis_extension_unconditional`, `basis_extension_self_basis`,
+--     `basis_extension_via_S1`, `bipartition_trivialises_eq_case`,
+--     `bipartition_trivialises_full_K_eq`,
+--     `bipartition_predicate_definable`
+--
+-- **Why deleted.** The v1 (S3) reading is genuinely false in CP^{N-1}:
+-- the rays `x = (1/√2, 1/√2, 0)` and `y = (1/√2, -1/√2, 0)` have
+-- identical basis K-profiles `(1/2, 1/2, 1)` yet are orthogonal
+-- (so x ≠ y as rays). The v2 paper restates (S3) as **Basis-Profile
+-- Symmetry** (paper line 390): equal basis profiles do not force
+-- equality, but DO force the existence of an Aut-element fixing the
+-- basis pointwise and swapping x ↔ y. The new statement follows
+-- directly from (S4) applied to the configuration C := S ∪ {x, y}
+-- with the involution swapping x ↔ y while fixing S; see
+-- `S3_basis_profile_symmetry_direct` and the master-theorem
+-- projection `S3_basis_profile_symmetry`.
+--
+-- The deleted theorems are no longer referenced anywhere in the
+-- library. Their typed hypotheses (basis_separates, augmented (B),
+-- aut_xy_basis_transitive) are themselves false in CP^{N-1} for
+-- generic (x, y), so the theorems were vacuously true under those
+-- hypotheses — misleading rather than load-bearing. The Axiom2
+-- structure field `Axiom2.saturation` retains the v1 statement for
+-- downstream API stability; the bridge `axiom2_from_SRC` now takes
+-- it as an explicit input (since it can no longer be derived from
+-- (S3) alone). See commit log for restatement details.
 -- ============================================================
---
--- Anchor: S3-BIPARTITION-AGENT (do not collide with sibling agents).
---
--- These lemmas peel off the easy cases of `basis_extension` and
--- `bipartition_trivialises`, the two paper-level pieces that
--- `S3_finite_determinacy_from_axiom1` takes as typed hypotheses.
--- The substantive (general) cases require either:
---   - the k-ary Definability Lemma (`definability_lemma`, currently
---     `sorry`), or
---   - Aut-orbit transitivity on the basis manifold (= clause (B),
---     itself sorry pending the K-amalgam construction), or
---   - (S2) Completeness applied to a basis-extension K-consistent
---     profile.
--- The cases handled here are unconditional on those gaps; they are
--- exposed for downstream consumers and serve as sanity checks on
--- the statements.
-
-/-- **`basis_extension`, basis-image case.** Standalone unconditional
-    lemma.
-
-    The trivial sub-case of `basis_extension`: when the target point
-    `w_0` is itself in the image of the supplied basis (i.e.,
-    `w_0 = basis i₀` for some `i₀`), the supplied basis already
-    witnesses the existential — no construction is needed.
-
-    This case is unconditional (no SRC, no k-ary Definability needed).
-    It is the "the empty set extends to a basis" half of the paper's
-    parenthetical at line 412 of
-    `QuantumMechanicsFromFiniteGradedEquality.tex`:
-    "(greedily complete to size N, possible since the empty set
-    extends to a basis of size N by Axiom~\ref{ax:finite}, and any
-    one-element set extends similarly)".
-
-    The "any one-element set extends similarly" half is the genuinely
-    non-trivial content for `w_0 ∉ image(basis)`; it requires either
-    (S2) Completeness applied to a basis-extension K-consistent
-    profile, or (B) Basis Isotropy plus the unary case of the
-    Definability Lemma. Both routes are beyond what is currently
-    mechanised. This sub-case isolates the trivial part for downstream
-    API use.
-
-    **Lean status:** PROVED. -/
-theorem basis_extension_self_basis
-    (K : α → α → ℝ)
-    {N : ℕ} (basis : Fin N → α)
-    (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1) :
-    ∀ (i₀ : Fin N), ∃ T : Fin N → α,
-      (∃ j : Fin N, T j = basis i₀) ∧
-      (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) := by
-  intro i₀
-  exact ⟨basis, ⟨i₀, rfl⟩, basis_dist⟩
-
-/-- **`bipartition_trivialises`, equal-states case.** Standalone
-    unconditional lemma.
-
-    The trivial sub-case of `bipartition_trivialises`: when `x = y`,
-    the conclusion `∀ T basis, ∀ i, K x (T i) = K y (T i)` is immediate
-    from `rfl`. This handles the diagonal of the bipartition argument
-    on the basis manifold trivially.
-
-    The genuinely non-trivial content (paper line 416) is the
-    contrapositive: if `x ≠ y` and some basis confuses them, then
-    every basis must confuse them. That requires the categorical form
-    of SRC plus Aut-orbit transitivity on the basis manifold (= clause
-    (B), proved elsewhere conditional on (S4)).
-
-    **Lean status:** PROVED. -/
-theorem bipartition_trivialises_eq_case
-    (K : α → α → ℝ)
-    {N : ℕ} :
-    ∀ x y : α, x = y →
-      (∃ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) ∧
-            (∀ i : Fin N, K x (T i) = K y (T i))) →
-      (∀ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) →
-            (∀ i : Fin N, K x (T i) = K y (T i))) := by
-  intro x y hxy _ T _ i
-  rw [hxy]
-
-/-- **`bipartition_trivialises`, full K-equality case.** Standalone
-    unconditional lemma.
-
-    A second easy sub-case: if `x` and `y` already agree on EVERY
-    K-value `K x z = K y z` for all `z ∈ α`, then in particular they
-    agree on every basis profile. This is unconditional.
-
-    Caveat: this is NOT how (S3) is usually invoked — typically
-    `bipartition_trivialises` is the *step* used to derive
-    `K x z = K y z` from basis-equality, going the other direction.
-    So this lemma is mainly a sanity-check / API exposure.
-
-    **Lean status:** PROVED. -/
-theorem bipartition_trivialises_full_K_eq
-    (K : α → α → ℝ)
-    {N : ℕ} :
-    ∀ x y : α, (∀ z : α, K x z = K y z) →
-      (∃ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) ∧
-            (∀ i : Fin N, K x (T i) = K y (T i))) →
-      (∀ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) →
-            (∀ i : Fin N, K x (T i) = K y (T i))) := by
-  intro x y hKeq _ T _ i
-  exact hKeq (T i)
-
-/-- **`basis_extension`, K-equivalent-to-basis case via SRC + (S1).**
-    Standalone lemma.
-
-    A useful intermediate: if a point `w_0` has the same K-profile as
-    `basis i₀` (i.e., `K w_0 z = K (basis i₀) z` for all z), then by
-    SRC's (S1) Identity (`S1_identity_direct`), `w_0 = basis i₀`, and
-    `basis_extension` reduces to `basis_extension_self_basis`.
-
-    This handles the case where SRC + (S1) already collapses `w_0`
-    to a known basis element via K-profile equality.
-
-    **Lean status:** PROVED. -/
-theorem basis_extension_via_S1
-    (K : α → α → ℝ)
-    (hSRC : SelfReferentialConsistency K)
-    {N : ℕ} (basis : Fin N → α)
-    (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1) :
-    ∀ (w_0 : α) (i₀ : Fin N),
-      (∀ z : α, K w_0 z = K (basis i₀) z) →
-      ∃ T : Fin N → α,
-        (∃ j : Fin N, T j = w_0) ∧
-        (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) := by
-  intro w_0 i₀ hKeq
-  have hw_0_eq : w_0 = basis i₀ := S1_identity_direct K hSRC w_0 (basis i₀) hKeq
-  refine ⟨basis, ⟨i₀, ?_⟩, basis_dist⟩
-  exact hw_0_eq.symm
-
-/-- **`bipartition_predicate_definable`: SRC content of bipartition
-    trivialisation, exhibited as binary Definability.** Standalone
-    PARTIAL lemma extracted from the master `bipartition_trivialises`
-    argument.
-
-    **The argument.** Define the binary predicate
-    `P(u, v) := ∃ T basis with Π_T(u) = Π_T(v)`. P is Aut-invariant:
-    any K-automorphism `g` permutes bases (since g preserves K, the
-    image of a basis is a basis) and preserves K-profiles, so
-    `P(g(u), g(v)) ↔ P(u, v)`. By the binary form of SRC's
-    `aut_invariant_definable` (which is PROVED via the structure
-    field), `P(u, v)` factors through the joint K-profile map:
-    `P(u, v) ↔ Q (K u ·, K v ·)` for some Q.
-
-    **What this lemma provides.** The Aut-invariance of P is exhibited
-    and the Definability factorisation is invoked, producing Q. This
-    is the SRC content of `bipartition_trivialises`: the EXISTENTIAL
-    statement "some basis confuses (u, v)" depends only on K-profiles.
-
-    **The remaining gap to `bipartition_trivialises`.** The full
-    `bipartition_trivialises` claim is the UNIVERSAL form: if some
-    basis confuses (x, y), then every basis confuses (x, y). The
-    binary Definability above gives `P(x, y) ↔ Q(K x ·, K y ·)`, which
-    is about the existential form only. To upgrade to the universal:
-      (1) Aut-orbit transitivity on the basis manifold (= clause (B)
-          Basis Isotropy), which says any two bases are connected by
-          an Aut-element, plus
-      (2) the categorical form of SRC, which would say the predicate
-          `Q_xy(T) := Π_T(x) = Π_T(y)` (parameterised by a fixed pair
-          (x, y)) is `Aut_{x,y}`-invariant in T and hence determined
-          by the K-profile of T against (x, y) — which forces
-          constancy.
-
-    Both ingredients are paper-level (B) + categorical SRC. Combining
-    this Q with (B) yields `bipartition_trivialises` proper.
-
-    **Lean status:** PROVED. -/
-theorem bipartition_predicate_definable
-    (K : α → α → ℝ)
-    (hSRC : SelfReferentialConsistency K)
-    {N : ℕ} :
-    ∃ Q : (α → ℝ) → (α → ℝ) → Prop,
-      ∀ x y : α,
-        (∃ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) ∧
-              (∀ i : Fin N, K x (T i) = K y (T i)))
-        ↔ Q (fun z => K x z) (fun z => K y z) := by
-  let P : α → α → Prop := fun x y =>
-    ∃ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) ∧
-        (∀ i : Fin N, K x (T i) = K y (T i))
-  have hP : IsAutInvariantBinary K P := by
-    intro g hg x y
-    simp only [P]
-    -- Helper: g.symm is a K-aut whenever g is.
-    have hg_symm : IsKAut K g.symm := by
-      intro u v
-      have h1 := hg (g.symm u) (g.symm v)
-      rw [Equiv.apply_symm_apply, Equiv.apply_symm_apply] at h1
-      exact h1.symm
-    constructor
-    · -- forward: P(g x, g y) → P(x, y) via T ↦ g.symm ∘ T.
-      rintro ⟨T, hT_basis, hT_eq⟩
-      refine ⟨g.symm ∘ T, ?_, ?_⟩
-      · intro i j hij
-        show K (g.symm (T i)) (g.symm (T j)) = 1
-        rw [hg_symm (T i) (T j)]
-        exact hT_basis i j hij
-      · intro i
-        show K x (g.symm (T i)) = K y (g.symm (T i))
-        have h1 : K x (g.symm (T i)) = K (g x) (T i) := by
-          have h := hg x (g.symm (T i))
-          rw [Equiv.apply_symm_apply] at h
-          exact h.symm
-        have h2 : K y (g.symm (T i)) = K (g y) (T i) := by
-          have h := hg y (g.symm (T i))
-          rw [Equiv.apply_symm_apply] at h
-          exact h.symm
-        rw [h1, h2]
-        exact hT_eq i
-    · -- backward: P(x, y) → P(g x, g y) via T ↦ g ∘ T.
-      rintro ⟨T, hT_basis, hT_eq⟩
-      refine ⟨g ∘ T, ?_, ?_⟩
-      · intro i j hij
-        show K (g (T i)) (g (T j)) = 1
-        rw [hg (T i) (T j)]
-        exact hT_basis i j hij
-      · intro i
-        show K (g x) (g (T i)) = K (g y) (g (T i))
-        rw [hg x (T i), hg y (T i)]
-        exact hT_eq i
-  obtain ⟨Q, hQ⟩ := hSRC.aut_invariant_definable P hP
-  exact ⟨Q, hQ⟩
-
--- ============================================================
--- §4.4.5. Closing the S3 chain: basis_extension, k-ary Definability,
--- bipartition_trivialises (Agent B's deliverables, Round 6).
--- ============================================================
---
--- Anchor: S3-CHAIN-CLOSURE-AGENT-B (do not collide with sibling agents).
---
--- This block closes the S3 chain that `S3_finite_determinacy_from_axiom1`
--- accepts as typed hypotheses. The closure has three pieces:
---
---   (1) `basis_extension_unconditional`: the greedy extension of any
---       singleton {w_0} to a basis of size N. Genuinely combinatorial;
---       proven here CONDITIONAL on a per-step "find FD point" oracle,
---       which is a paper-equivalent restatement of Axiom 1. The trivial
---       sub-cases are handled by the existing lemmas
---       `basis_extension_self_basis` and `basis_extension_via_S1`.
---
---   (2) `definability_lemma` (the k-ary case) is now PROVED above
---       (sorry-free) — see lines ~277. The proof uses (S1) componentwise.
---
---   (3) `bipartition_trivialises_from_definability`: the universal
---       form derived from the existential. Proven here CONDITIONAL on
---       Aut_{x,y}-transitivity on the basis manifold, i.e., for any
---       two bases T_1, T_2 there is a K-aut fixing x and y that maps
---       T_1 to T_2 (up to permutation). This is the residual Galois
---       content; it would follow from clause (B) Basis Isotropy
---       upgraded to the fixator subgroup.
---
--- The unconditional closure of (S3) requires either:
---   - replacing (1)'s oracle by a direct combinatorial argument (the
---     paper handles this via S2 + the convex-midpoint K-extension); or
---   - replacing (3)'s fixator-transitivity by an alternate argument
---     using the (N+2)-ary Definability Lemma applied to the joint
---     basis-x-y predicate, which we package below.
-
-/-- **`extend_oracle_from_SRC`: discharge of the per-step extension
-    oracle from SRC + the four basic kernel axioms + `K_ident`.**
-
-    **What this proves.** For any partial configuration
-    `cfg : Fin m → α`, there exists `w : α` with `K w (cfg i) = 1`
-    for every `i`. This is the per-step extension oracle that
-    `basis_extension_unconditional` consumes; the `m < N` and pairwise
-    `basis_dist` hypotheses are not needed for this construction
-    (they are consumed only by the calling iterative argument in
-    `basis_extension_unconditional`).
-
-    **Strategy (Strategy B from the task brief, paper §3 lines
-    411-413).** Construct the singleton-extension `α' := α ⊕ Unit`
-    where the new point `inr ()` is fully distinguishable from every
-    `inl a`:
-      `K'(inl a, inr ()) := 1` (the constant-one profile),
-      `K'(inr (), inr ()) := 0`,
-      `K'(inl a, inl b) := K(a, b)`.
-    Verify the four kernel axioms plus `K'_ident` on this extension.
-    The constant-one profile `p ≡ 1` is K-consistent (witnessed by
-    this extension at `x_star := inr ()`). Apply
-    `S2_completeness_direct` to realise `p` in `α` as some `w`
-    satisfying `K(w, a) = 1` for ALL `a ∈ α`, hence in particular
-    `K(w, cfg i) = 1` for all `i`.
-
-    **Why `K'_ident` holds.** The non-trivial check is the cross
-    case `K'(inl a, inr ()) = 0 → inl a = inr ()`. Since
-    `K'(inl a, inr ()) = 1 ≠ 0`, the implication is vacuously true.
-    The `inl-inl` case reduces to `K_ident` on `α`; the `inr-inr`
-    case is trivial.
-
-    **Lean status:** PROVED, sorry-free. -/
-theorem extend_oracle_from_SRC
-    (K : α → α → ℝ)
-    (K_nonneg : ∀ x y, 0 ≤ K x y) (_K_le_one : ∀ x y, K x y ≤ 1)
-    (K_refl : ∀ x, K x x = 0) (K_symm : ∀ x y, K x y = K y x)
-    (K_ident : ∀ x y, K x y = 0 → x = y)
-    (hSRC : SelfReferentialConsistency K) :
-    ∀ {m : ℕ} (cfg : Fin m → α),
-      ∃ w : α, ∀ i : Fin m, K w (cfg i) = 1 := by
-  intro m cfg
-  -- Build the singleton extension on α ⊕ Unit with constant-one new profile.
-  let K' : α ⊕ Unit → α ⊕ Unit → ℝ := fun u v =>
-    match u, v with
-    | Sum.inl a, Sum.inl b => K a b
-    | Sum.inl _, Sum.inr _ => 1
-    | Sum.inr _, Sum.inl _ => 1
-    | Sum.inr _, Sum.inr _ => 0
-  let p : α → ℝ := fun _ => 1
-  have hp_nn : ∀ z, 0 ≤ p z := fun _ => zero_le_one
-  have hp_le : ∀ z, p z ≤ 1 := fun _ => le_refl 1
-  let E : KExtension K (α ⊕ Unit) :=
-    { K' := K'
-      ι := Sum.inl
-      ι_inj := Sum.inl_injective
-      ι_kpres := fun _ _ => rfl
-      K'_refl := by
-        intro b
-        cases b with
-        | inl a => exact K_refl a
-        | inr u => rfl
-      K'_symm := by
-        intro b₁ b₂
-        cases b₁ with
-        | inl a₁ =>
-          cases b₂ with
-          | inl a₂ => exact K_symm a₁ a₂
-          | inr _ => rfl
-        | inr _ =>
-          cases b₂ with
-          | inl _ => rfl
-          | inr _ => rfl
-      K'_nonneg := by
-        intro b₁ b₂
-        cases b₁ with
-        | inl a₁ =>
-          cases b₂ with
-          | inl a₂ => exact K_nonneg a₁ a₂
-          | inr _ => exact zero_le_one
-        | inr _ =>
-          cases b₂ with
-          | inl _ => exact zero_le_one
-          | inr _ => exact le_refl 0
-      K'_le_one := by
-        intro b₁ b₂
-        cases b₁ with
-        | inl a₁ =>
-          cases b₂ with
-          | inl a₂ => exact _K_le_one a₁ a₂
-          | inr _ => exact le_refl 1
-        | inr _ =>
-          cases b₂ with
-          | inl _ => exact le_refl 1
-          | inr _ => exact zero_le_one
-      K'_ident := by
-        intro b₁ b₂ h
-        cases b₁ with
-        | inl a₁ =>
-          cases b₂ with
-          | inl a₂ =>
-            -- K'(inl a₁, inl a₂) = K a₁ a₂ = 0; apply K_ident on α.
-            exact congrArg Sum.inl (K_ident a₁ a₂ h)
-          | inr u₂ =>
-            -- K'(inl a₁, inr u₂) = 1 by construction; h : 1 = 0; contradiction.
-            exfalso
-            have heq : (1 : ℝ) = 0 := h
-            linarith
-        | inr u₁ =>
-          cases b₂ with
-          | inl _ =>
-            exfalso
-            have heq : (1 : ℝ) = 0 := h
-            linarith
-          | inr u₂ =>
-            cases u₁; cases u₂; rfl }
-  -- p is a K-consistent profile, witnessed by E at x_star := Sum.inr ().
-  have hp_consistent : IsKConsistentProfile K p := by
-    refine ⟨hp_nn, hp_le, α ⊕ Unit, E, Sum.inr (), ?_⟩
-    intro x
-    -- E.K' (Sum.inr ()) (E.ι x) = K' (inr ()) (inl x) = 1 = p x.
-    rfl
-  -- Apply S2_completeness_direct to realise p in α.
-  obtain ⟨w, hw⟩ := S2_completeness_direct K hSRC p hp_consistent
-  -- w realises p, i.e., K(w, a) = 1 for all a ∈ α; in particular for cfg i.
-  refine ⟨w, ?_⟩
-  intro i
-  exact hw (cfg i)
-
-/-- **`extend_oracle_from_SRC_aux`: the `m < N` form of the oracle, suitable
-    for direct consumption by `basis_extension_unconditional`.**
-
-    A repackaging of `extend_oracle_from_SRC` with the `m < N`
-    hypothesis (consumed by the calling iterative argument). The
-    construction itself does not use the bound.
-
-    **Lean status:** PROVED, sorry-free. -/
-theorem extend_oracle_from_SRC_aux
-    (K : α → α → ℝ)
-    (K_nonneg : ∀ x y, 0 ≤ K x y) (K_le_one : ∀ x y, K x y ≤ 1)
-    (K_refl : ∀ x, K x x = 0) (K_symm : ∀ x y, K x y = K y x)
-    (K_ident : ∀ x y, K x y = 0 → x = y)
-    (hSRC : SelfReferentialConsistency K)
-    {N : ℕ} :
-    ∀ {m : ℕ} (cfg : Fin m → α),
-      m < N → (∀ i j : Fin m, i ≠ j → K (cfg i) (cfg j) = 1) →
-      ∃ w : α, ∀ i : Fin m, K w (cfg i) = 1 := by
-  intro m cfg _hm _hcfg_dist
-  exact extend_oracle_from_SRC K K_nonneg K_le_one K_refl K_symm K_ident hSRC cfg
-
-/-- **`basis_extension_unconditional`: greedy extension to a basis,
-    conditional on per-step extension oracle.**
-
-    Given any element `w_0 : α` and an oracle that produces, for any
-    partial MFD configuration of size m < N, a new element fully
-    distinguishable from all current entries, we can iteratively
-    extend `{w_0}` to a basis of size N.
-
-    The oracle is paper-equivalent to Axiom 1 (finite capacity = N
-    *exactly*; every maximal MFD set has size N). Without the oracle
-    or the equivalent S2-based realisation argument, we cannot
-    construct the extension at this layer.
-
-    The oracle is also asked to produce w with `K w (cfg i) = 1`
-    (i.e., w is FD against every cfg-entry). The proof appeals to
-    K-symmetry to bridge to the symmetric basis_dist conclusion;
-    that bridge is taken as the additional `K_symm` parameter.
-
-    **Lean status:** PROVED CONDITIONAL on the per-step oracle. The
-    oracle's discharge is paper-§3, lines 411-413, via S2 +
-    convex-combination K-extension. -/
-theorem basis_extension_unconditional
-    (K : α → α → ℝ)
-    (K_symm : ∀ x y : α, K x y = K y x)
-    {N : ℕ} (hN_pos : 0 < N)
-    (extend_oracle :
-      ∀ {m : ℕ} (cfg : Fin m → α),
-        m < N → (∀ i j : Fin m, i ≠ j → K (cfg i) (cfg j) = 1) →
-        ∃ w : α, ∀ i : Fin m, K w (cfg i) = 1) :
-    ∀ w_0 : α, ∃ B : Fin N → α,
-      (∃ i₀ : Fin N, B i₀ = w_0) ∧
-      (∀ i j : Fin N, i ≠ j → K (B i) (B j) = 1) := by
-  intro w_0
-  -- Strong recursion: for any m ≤ N, get cfg : Fin m → α with
-  -- cfg ⟨0, _⟩ = w_0 (when m ≥ 1) and mutually FD.
-  suffices h : ∀ m : ℕ, m ≤ N →
-      ∃ cfg : Fin m → α,
-        (∀ hm : 0 < m, cfg ⟨0, hm⟩ = w_0) ∧
-        (∀ i j : Fin m, i ≠ j → K (cfg i) (cfg j) = 1) by
-    obtain ⟨B, hB0, hB_dist⟩ := h N (le_refl N)
-    exact ⟨B, ⟨⟨0, hN_pos⟩, hB0 hN_pos⟩, hB_dist⟩
-  -- Induction on m ≤ N.
-  intro m hm
-  induction m with
-  | zero =>
-    refine ⟨Fin.elim0, ?_, ?_⟩
-    · intro h0; exact absurd h0 (Nat.lt_irrefl 0)
-    · intro i; exact (Fin.elim0 i)
-  | succ k IH =>
-    have hk_le : k ≤ N := Nat.le_of_succ_le hm
-    obtain ⟨cfg_k, hcfg_k0, hcfg_k_dist⟩ := IH hk_le
-    by_cases hk0 : k = 0
-    · -- Case k = 0: cfg_k is empty; extend by adding w_0 as the first element.
-      refine ⟨fun _ => w_0, ?_, ?_⟩
-      · intro _; rfl
-      · intro i j hij
-        subst hk0
-        -- i, j : Fin 1, both must equal ⟨0, _⟩.
-        have : i = j := by
-          have hi : i.val = 0 := by omega
-          have hj : j.val = 0 := by omega
-          exact Fin.ext (hi.trans hj.symm)
-        exact absurd this hij
-    · -- Case k ≥ 1: extend cfg_k by appending one new element via the oracle.
-      have hk_pos : 0 < k := Nat.pos_of_ne_zero hk0
-      have hk_lt_N : k < N := Nat.lt_of_succ_le hm
-      obtain ⟨w_new, hw_new⟩ := extend_oracle cfg_k hk_lt_N hcfg_k_dist
-      let cfg_succ : Fin (k+1) → α := fun i =>
-        if h : i.val < k then cfg_k ⟨i.val, h⟩ else w_new
-      refine ⟨cfg_succ, ?_, ?_⟩
-      · intro h_pos
-        show cfg_succ ⟨0, h_pos⟩ = w_0
-        simp only [cfg_succ]
-        rw [dif_pos hk_pos]
-        exact hcfg_k0 hk_pos
-      · intro i j hij
-        simp only [cfg_succ]
-        by_cases hi : i.val < k
-        · by_cases hj : j.val < k
-          · rw [dif_pos hi, dif_pos hj]
-            apply hcfg_k_dist
-            intro h
-            have : (⟨i.val, hi⟩ : Fin k).val = (⟨j.val, hj⟩ : Fin k).val :=
-              congrArg Fin.val h
-            exact hij (Fin.ext this)
-          · rw [dif_pos hi, dif_neg hj]
-            -- K (cfg_k ⟨i.val, hi⟩) w_new = 1, via K_symm + hw_new.
-            rw [K_symm]
-            exact hw_new ⟨i.val, hi⟩
-        · by_cases hj : j.val < k
-          · rw [dif_neg hi, dif_pos hj]
-            exact hw_new ⟨j.val, hj⟩
-          · -- Both i, j = k (the new element); but i ≠ j.
-            have hi' : i.val = k := by
-              have h1 : i.val ≤ k := Nat.le_of_lt_succ i.isLt
-              omega
-            have hj' : j.val = k := by
-              have h1 : j.val ≤ k := Nat.le_of_lt_succ j.isLt
-              omega
-            exact absurd (Fin.ext (hi'.trans hj'.symm)) hij
-
-/-- **`bipartition_trivialises_from_definability`: derived from k-ary
-    Definability, conditional on Aut_{x,y}-transitivity on bases.**
-
-    Given:
-      - the hypothesis `aut_xy_basis_transitive`: for any two bases
-        T_1, T_2 of size N and any x, y, there exists a K-automorphism
-        g fixing x and y with g ∘ T_1 = T_2 ∘ σ for some permutation σ
-        of Fin N,
-
-    we conclude `bipartition_trivialises`: if some basis confuses
-    (x, y), then every basis confuses (x, y).
-
-    **Discharging the hypothesis.** `aut_xy_basis_transitive` is
-    paper-equivalent to clause (B) Basis Isotropy upgraded to the
-    Aut_{x,y} fixator subgroup. The unupgraded (B) follows from (S4) via
-    the amalgam construction; the fixator-restricted form requires
-    additional work (the paper's bipartition argument, line 416,
-    encodes exactly this content).
-
-    **Lean status:** PROVED CONDITIONAL on `aut_xy_basis_transitive`. -/
-theorem bipartition_trivialises_from_definability
-    (K : α → α → ℝ)
-    {N : ℕ}
-    (aut_xy_basis_transitive :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i)) :
-    ∀ x y : α,
-      (∃ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) ∧
-            (∀ i : Fin N, K x (T i) = K y (T i))) →
-      (∀ T : Fin N → α, (∀ i j : Fin N, i ≠ j → K (T i) (T j) = 1) →
-            (∀ i : Fin N, K x (T i) = K y (T i))) := by
-  intro x y h_exists T₂ hT₂_basis i
-  obtain ⟨T₁, hT₁_basis, hT₁_eq⟩ := h_exists
-  obtain ⟨g, hg, hgx, hgy, σ, hgT⟩ :=
-    aut_xy_basis_transitive x y T₁ T₂ hT₁_basis hT₂_basis
-  -- T₂ i = g (T₁ (σ.symm i)).
-  have hT₂_i : T₂ i = g (T₁ (σ.symm i)) := by
-    have h1 : g (T₁ (σ.symm i)) = T₂ (σ (σ.symm i)) := hgT (σ.symm i)
-    rw [Equiv.apply_symm_apply] at h1
-    exact h1.symm
-  have hg_symm : IsKAut K g.symm := by
-    intro u v
-    have h := hg (g.symm u) (g.symm v)
-    rw [Equiv.apply_symm_apply, Equiv.apply_symm_apply] at h
-    exact h.symm
-  have hg_symm_x : g.symm x = x := by
-    have h : g.symm (g x) = g.symm x := congrArg g.symm hgx
-    rw [Equiv.symm_apply_apply] at h
-    exact h.symm
-  have hg_symm_y : g.symm y = y := by
-    have h : g.symm (g y) = g.symm y := congrArg g.symm hgy
-    rw [Equiv.symm_apply_apply] at h
-    exact h.symm
-  rw [hT₂_i]
-  -- K x (g w) = K (g.symm x) w = K x w; same for y.
-  have hKx : K x (g (T₁ (σ.symm i))) = K x (T₁ (σ.symm i)) := by
-    have h := hg_symm x (g (T₁ (σ.symm i)))
-    rw [Equiv.symm_apply_apply] at h
-    rw [← h, hg_symm_x]
-  have hKy : K y (g (T₁ (σ.symm i))) = K y (T₁ (σ.symm i)) := by
-    have h := hg_symm y (g (T₁ (σ.symm i)))
-    rw [Equiv.symm_apply_apply] at h
-    rw [← h, hg_symm_y]
-  rw [hKx, hKy]
-  exact hT₁_eq (σ.symm i)
-
--- ============================================================
--- §4.4.6. Bridge from B Basis Isotropy to aut_xy_basis_transitive.
---
--- Anchor: AUT-XY-BRIDGE-AGENT-E (do not collide with sibling agents).
--- ============================================================
---
--- This block constructs the bridge between the unconditional
--- (B) Basis Isotropy clause (Aut acts transitively on bases) and
--- the strengthened `aut_xy_basis_transitive` form (Aut_{x,y}
--- fixator subgroup acts transitively on bases) consumed by
--- `bipartition_trivialises_from_definability` and
--- `S3_finite_determinacy_unconditional`.
---
--- **The Galois content gap.** Bare (B) (Agent D's deliverable, paper
--- line 454, derived from (S4) via the basis-amalgam) says: for any
--- two bases there is an Aut mapping one to the other. The strengthened
--- form additionally requires the Aut to fix a designated pair (x, y).
--- The strengthening is paper-equivalent to "augmented (B)", where
--- Aut acts transitively on (basis, x, y) triples (paper line 416).
---
--- **The bridges below.**
---   * `aut_xy_basis_transitive_from_augB` — takes augmented (B)
---     directly and definitionally equals `aut_xy_basis_transitive`.
---     The realistic Wave-2 deliverable: closes the chain at the cost
---     of leaving augmented (B) as an explicit hypothesis (paper line
---     416 content not currently mechanised).
---   * `aut_xy_basis_transitive_from_B_and_fixator` — splits augmented
---     (B) into bare (B) plus a separately-named "T-pointwise fixator
---     transitivity" hypothesis. PROVED for the case σ = σ_B (where
---     σ_B is the permutation produced by bare (B)). The general σ
---     case requires composing with a basis-permutation Aut and is
---     left as future Lean work; the σ = σ_B case is sufficient for
---     downstream consumers via permutation-relabelling.
---
--- **Why bare (B) alone does not suffice.** A naive composition
--- `g := g₁ ∘ g₀` (with g₀ from bare (B) and g₁ fixing T₂ pointwise
--- mapping `g₀(x), g₀(y)` back to `x, y`) requires the existence of
--- such `g₁`, which is itself paper-equivalent to the
--- fixator-restricted form we are trying to derive. The split into
--- (1) bare (B) and (2) fixator-transitivity is therefore a
--- refactoring of the Galois content rather than a strict reduction.
-
-/-- **`aut_xy_basis_transitive_from_augB`: bridge from augmented (B)
-    to fixator-restricted basis transitivity.**
-
-    The augmented (B) hypothesis says: for any two bases `T₁, T₂`
-    and any pair `(x, y)`, there is an `Aut`-element fixing `(x, y)`
-    that maps `T₁` to `T₂` (up to permutation). This is exactly the
-    strengthened (B) restricted to the `Aut_{x,y}` fixator subgroup,
-    paper line 416.
-
-    Once augmented (B) is supplied, the fixator-restricted
-    basis-transitivity statement (the form consumed by
-    `bipartition_trivialises_from_definability`) is recovered by
-    repackaging.
-
-    **How to discharge augmented (B) (future work).** Augmented (B)
-    follows from bare (B) plus the (N+2)-ary Definability Lemma
-    applied to the joint predicate
-      `P(b, x_0, y_0) := "(b is a basis) ∧ K x_0 (b ·) = K x (b ·)
-                          ∧ K y_0 (b ·) = K y (b ·)"`.
-    Mechanising this requires the categorical content of SRC at
-    higher arity, encoded in `definability_lemma` (proved sorry-free
-    above) but does not by itself produce the *automorphism* — only
-    the predicate factoring. The automorphism existence is the
-    paper-level content at line 416 not currently mechanised.
-
-    **Lean status:** PROVED, sorry-free (definitional). -/
-theorem aut_xy_basis_transitive_from_augB
-    (K : α → α → ℝ) {N : ℕ}
-    (augB :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i)) :
-    ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-      (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-      (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-      ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-        ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i) := augB
-
-/-- **`aut_xy_basis_transitive_from_bareB_and_fixator_pulled`: bridge
-    from bare (B) plus a `cross-basis fixator` hypothesis.**
-
-    A two-piece refactoring of augmented (B) where the residual
-    Galois content is concentrated in a single hypothesis whose
-    profile-equality premise is stated in the bare-(B)-output indexing:
-
-      (1) Bare (B): for any two bases there is an Aut mapping one to
-          the other (Agent D's deliverable, paper line 454, derived
-          from (S4)).
-      (2) `fix_xy_pulled`: given a basis `T₂` together with a `T₁` and
-          permutation `σ` such that the K-profile of `(x', y')` against
-          `T₂` matches the K-profile of `(x, y)` against `T₁` (modulo
-          σ), there is an Aut fixing `T₂` pointwise and mapping
-          `(x', y') ↦ (x, y)`.
-
-    Composition: apply (1) to obtain `g₀ : T₁ → T₂` with permutation
-    σ₀. Compute that `(g₀ x, g₀ y)` has K-profile against `T₂` equal
-    to `(x, y)`'s K-profile against `T₁` modulo σ₀ (this is exactly
-    what (2) requires). Apply (2) to get `g₁` fixing `T₂` and
-    mapping `(g₀ x, g₀ y) ↦ (x, y)`. The composite `g := g₁ ∘ g₀`
-    fixes `(x, y)` and maps `T₁ → T₂` with σ = σ₀.
-
-    **Caveat.** Hypothesis (2) packages exactly the cross-basis
-    profile-equality content that bare (B) cannot produce on its own;
-    it is the paper-level fixator-orbit content (paper line 416). The
-    split is therefore a refactoring of the Galois content rather
-    than a strict reduction.
-
-    **Lean status:** PROVED, sorry-free, conditional on (1) and (2). -/
-theorem aut_xy_basis_transitive_from_bareB_and_fixator_pulled
-    (K : α → α → ℝ) {N : ℕ}
-    (bareB :
-      ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i))
-    (fix_xy_pulled :
-      ∀ x y x' y' : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∀ σ : Equiv.Perm (Fin N),
-          (∀ i, K x' (T₂ i) = K x (T₁ (σ.symm i))) →
-          (∀ i, K y' (T₂ i) = K y (T₁ (σ.symm i))) →
-          ∃ g : α ≃ α, IsKAut K g ∧
-            (∀ i, g (T₂ i) = T₂ i) ∧ g x' = x ∧ g y' = y) :
-    ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-      (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-      (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-      ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-        ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i) := by
-  intro x y T₁ T₂ hT₁ hT₂
-  -- Step 1: apply (B) to get g₀ : T₁ → T₂ (up to σ₀).
-  obtain ⟨g₀, hg₀, σ₀, hg₀T⟩ := bareB T₁ T₂ hT₁ hT₂
-  -- Step 2: compute K-profile of (g₀ x, g₀ y) against T₂.
-  -- T₂ i = g₀ (T₁ (σ₀.symm i)).
-  have hg₀T_inv : ∀ j : Fin N, T₂ j = g₀ (T₁ (σ₀.symm j)) := by
-    intro j
-    have h := hg₀T (σ₀.symm j)
-    rw [Equiv.apply_symm_apply] at h
-    exact h.symm
-  have hKgx : ∀ i, K (g₀ x) (T₂ i) = K x (T₁ (σ₀.symm i)) := by
-    intro i; rw [hg₀T_inv i]; exact hg₀ x (T₁ (σ₀.symm i))
-  have hKgy : ∀ i, K (g₀ y) (T₂ i) = K y (T₁ (σ₀.symm i)) := by
-    intro i; rw [hg₀T_inv i]; exact hg₀ y (T₁ (σ₀.symm i))
-  -- Step 3: apply (2) at x' := g₀ x, y' := g₀ y, σ := σ₀.
-  obtain ⟨g₁, hg₁, hg₁T₂, hg₁x, hg₁y⟩ :=
-    fix_xy_pulled x y (g₀ x) (g₀ y) T₁ T₂ hT₁ hT₂ σ₀ hKgx hKgy
-  -- Step 4: composite g := g₁ ∘ g₀.
-  refine ⟨g₀.trans g₁, ?_, ?_, ?_, σ₀, ?_⟩
-  · -- IsKAut composite.
-    intro u v
-    show K (g₁ (g₀ u)) (g₁ (g₀ v)) = K u v
-    rw [hg₁ (g₀ u) (g₀ v), hg₀ u v]
-  · -- g x = x.
-    show g₁ (g₀ x) = x
-    exact hg₁x
-  · -- g y = y.
-    show g₁ (g₀ y) = y
-    exact hg₁y
-  · -- ∀ i, g (T₁ i) = T₂ (σ₀ i).
-    intro i
-    show g₁ (g₀ (T₁ i)) = T₂ (σ₀ i)
-    rw [hg₀T i]
-    exact hg₁T₂ (σ₀ i)
-
-/-- **`aut_xy_basis_transitive_from_B_via_basis`: an alias of
-    `from_augB` for clarity in downstream consumer code.**
-
-    Identical to `aut_xy_basis_transitive_from_augB`, exposed under a
-    second name to clarify that augmented (B) IS the conclusion form
-    consumed by `bipartition_trivialises_from_definability` /
-    `S3_finite_determinacy_unconditional` — no further reduction
-    inside the present Lean is mechanically meaningful without
-    discharging augmented (B) itself.
-
-    **Lean status:** PROVED (definitional). -/
-theorem aut_xy_basis_transitive_from_B_via_basis
-    (K : α → α → ℝ) {N : ℕ}
-    (augB :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i)) :
-    ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-      (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-      (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-      ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-        ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i) := augB
-
-/-- **`S3_finite_determinacy_unconditional`: the S3 closure under the
-    full hypothesis chain.**
-
-    Given:
-      - SRC (Axiom 2),
-      - finite capacity through `basis : Fin N → α` with `basis_dist`,
-      - the per-step extension oracle (paper-equivalent to Axiom 1
-        in its strong form), and
-      - Aut_{x,y}-transitivity on bases (paper-equivalent to (B)
-        upgraded to the fixator subgroup),
-
-    we derive (S3) Finite Determinacy: the basis is a separating set.
-
-    **Lean status:** PROVED CONDITIONAL on the two hypotheses
-    `extend_oracle` and `aut_xy_basis_transitive`. The k-ary
-    Definability Lemma component is sorry-free (see `definability_lemma`
-    above). The two remaining hypotheses encode the residual Galois
-    content of Axiom 1 (greedy extendibility) and clause (B) (Aut-orbit
-    transitivity on bases). -/
-theorem S3_finite_determinacy_unconditional
-    (K : α → α → ℝ)
-    (K_symm : ∀ x y : α, K x y = K y x)
-    (hSRC : SelfReferentialConsistency K)
-    {N : ℕ} (hN_pos : 0 < N) (basis : Fin N → α)
-    (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1)
-    (extend_oracle :
-      ∀ {m : ℕ} (cfg : Fin m → α),
-        m < N → (∀ i j : Fin m, i ≠ j → K (cfg i) (cfg j) = 1) →
-        ∃ w : α, ∀ i : Fin m, K w (cfg i) = 1)
-    (aut_xy_basis_transitive :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i)) :
-    ∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) → x = y := by
-  apply S3_finite_determinacy_from_axiom1 K hSRC basis basis_dist
-  · -- basis_extension hypothesis from extend_oracle.
-    exact basis_extension_unconditional K K_symm hN_pos extend_oracle
-  · -- bipartition_trivialises hypothesis from aut_xy_basis_transitive.
-    exact bipartition_trivialises_from_definability K aut_xy_basis_transitive
-
-/-- **`S3_finite_determinacy_completely_unconditional`: S3 with the
-    extension oracle discharged from SRC.**
-
-    A tightening of `S3_finite_determinacy_unconditional` that consumes
-    `extend_oracle_from_SRC_aux` (proved sorry-free above) to discharge
-    the per-step extension oracle. The remaining hypothesis is just
-    `aut_xy_basis_transitive` (Aut_{x,y} fixator transitivity on
-    bases), which is the unique residual Galois content paper-line-416
-    that future Lean work must close (e.g., via Agent D's bare (B)
-    plus the k-ary Definability Lemma at one more arity).
-
-    **Lean status:** PROVED, sorry-free, conditional on
-    `aut_xy_basis_transitive` only. -/
-theorem S3_finite_determinacy_completely_unconditional
-    (K : α → α → ℝ)
-    (K_nonneg : ∀ x y, 0 ≤ K x y) (K_le_one : ∀ x y, K x y ≤ 1)
-    (K_refl : ∀ x, K x x = 0) (K_symm : ∀ x y : α, K x y = K y x)
-    (K_ident : ∀ x y, K x y = 0 → x = y)
-    (hSRC : SelfReferentialConsistency K)
-    {N : ℕ} (hN_pos : 0 < N) (basis : Fin N → α)
-    (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1)
-    (aut_xy_basis_transitive :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i)) :
-    ∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) → x = y := by
-  apply S3_finite_determinacy_unconditional K K_symm hSRC hN_pos basis basis_dist
-  · -- Discharge extend_oracle from SRC + 4 kernel axioms + K_ident.
-    exact extend_oracle_from_SRC_aux K K_nonneg K_le_one K_refl K_symm K_ident hSRC
-  · -- aut_xy_basis_transitive remains as input.
-    exact aut_xy_basis_transitive
-
-/-- **`S3_finite_determinacy_via_augB`: S3 with both extend_oracle
-    discharged and `aut_xy_basis_transitive` repackaged via augmented
-    (B).**
-
-    Tightens `S3_finite_determinacy_completely_unconditional` further
-    by replacing `aut_xy_basis_transitive` with augmented (B) (paper
-    line 416 form). Since `aut_xy_basis_transitive` and augmented (B)
-    are definitionally equal, this is essentially a renamed
-    convenience form for downstream consumers using paper notation.
-
-    **Lean status:** PROVED, sorry-free, conditional on augmented (B). -/
-theorem S3_finite_determinacy_via_augB
-    (K : α → α → ℝ)
-    (K_nonneg : ∀ x y, 0 ≤ K x y) (K_le_one : ∀ x y, K x y ≤ 1)
-    (K_refl : ∀ x, K x x = 0) (K_symm : ∀ x y : α, K x y = K y x)
-    (K_ident : ∀ x y, K x y = 0 → x = y)
-    (hSRC : SelfReferentialConsistency K)
-    {N : ℕ} (hN_pos : 0 < N) (basis : Fin N → α)
-    (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1)
-    (augB :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i)) :
-    ∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) → x = y :=
-  S3_finite_determinacy_completely_unconditional K K_nonneg K_le_one K_refl K_symm
-    K_ident hSRC hN_pos basis basis_dist
-    (aut_xy_basis_transitive_from_augB K augB)
 
 /-- **(S4) Structural Leibniz, identity-permutation special case.**
 
@@ -3371,6 +2372,230 @@ theorem S4_structural_leibniz_amalgam_general
       cfg σ hKσ h_inl_inj (h_K'_ident · · hKσ) h_no_extend
   exact hSRC.no_richer_extension E (Or.inr ⟨g', hg', h_no_lift⟩)
 
+/-- **(S3) Basis-Profile Symmetry, direct from (S4).**
+
+    **Paper statement (paper line 390, Theorem `thm:src-master`(S3)).**
+    For any maximal mutually fully distinguishable set
+    `S = {e₁, ..., e_N}`, if `K(x, e_i) = K(y, e_i)` for `i = 1, ..., N`,
+    then there exists `g ∈ Aut(α, K)` with `g|_S = id_S`,
+    `g(x) = y`, `g(y) = x`.
+
+    **Why this replaces the old (S3).** The previous Lean encoding read
+    "K(x, e_i) = K(y, e_i) ∀ i ⟹ x = y" (basis-profile equality forces
+    state equality). That statement is genuinely false in `CP^{N-1}`:
+    rays `x = (1/√2, 1/√2, 0)` and `y = (1/√2, -1/√2, 0)` have
+    identical basis K-profiles (both `(1/2, 1/2, 1)`) yet are orthogonal
+    rays, so `x ≠ y`. The paper's restated (S3) is the correct
+    Aut-orbit content: equal basis-profiles do not force equality, but
+    do force the existence of an Aut-element swapping `x ↔ y` while
+    fixing the basis pointwise.
+
+    **Proof (paper line 406).** Apply (S4) to the configuration
+    `cfg : Fin (N+2) → α` defined by `cfg ⟨i, _⟩ = basis i` for `i < N`,
+    `cfg ⟨N, _⟩ = x`, `cfg ⟨N+1, _⟩ = y`, with the involution
+    `σ : Equiv.Perm (Fin (N+2))` swapping `⟨N, _⟩ ↔ ⟨N+1, _⟩` and
+    fixing the basis indices pointwise. Verify the K-symmetry
+    conditions:
+      - basis-basis: `K(σ(e_i), σ(e_j)) = K(e_i, e_j)` (σ fixes basis);
+      - x-x and y-y: trivial via `K_refl`;
+      - x-y: `K(σ x, σ y) = K(y, x) = K(x, y)` by `K_symm`;
+      - x-basis: `K(σ x, σ e_i) = K(y, e_i) = K(x, e_i)` from the
+        basis-profile hypothesis (using `K_symm` to flip).
+    By (S4), `σ` extends to `g ∈ Aut(α, K)` with `g|_basis = id`,
+    `g(x) = y`, `g(y) = x`.
+
+    **Lean status:** PROVED, sorry-free. Conditional on the paper-form
+    (S4) `hS4` (permutation-form, general σ); the master theorem and
+    its specializations supply this via
+    `S4_structural_leibniz_amalgam_general` plus the K-amalgam
+    `witness_inputs_gen` package. -/
+theorem S3_basis_profile_symmetry_direct
+    (K : α → α → ℝ)
+    (K_refl : ∀ x : α, K x x = 0)
+    (K_symm : ∀ x y : α, K x y = K y x)
+    (hS4 :
+      ∀ {m : ℕ} (cfg : Fin m → α) (σ : Equiv.Perm (Fin m)),
+        (∀ i j, K (cfg (σ i)) (cfg (σ j)) = K (cfg i) (cfg j)) →
+        ∃ g : α ≃ α, IsKAut K g ∧ ∀ i, g (cfg i) = cfg (σ i))
+    {N : ℕ} (basis : Fin N → α)
+    (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1) :
+    ∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) →
+      ∃ g : α ≃ α, IsKAut K g
+        ∧ (∀ i : Fin N, g (basis i) = basis i)
+        ∧ g x = y ∧ g y = x := by
+  intro x y hKeq
+  -- Build the configuration cfg : Fin (N+2) → α with basis on [0, N),
+  -- x at index N, y at index N+1.
+  let cfg : Fin (N + 2) → α := fun k =>
+    if h : k.val < N then basis ⟨k.val, h⟩
+    else if k.val = N then x else y
+  -- Build the involution σ : Fin (N+2) ≃ Fin (N+2) swapping
+  -- ⟨N, _⟩ ↔ ⟨N+1, _⟩ and fixing the rest. We use Equiv.swap.
+  set iN : Fin (N + 2) := ⟨N, by omega⟩ with hiN_def
+  set iN1 : Fin (N + 2) := ⟨N + 1, by omega⟩ with hiN1_def
+  have hiN_val : iN.val = N := rfl
+  have hiN1_val : iN1.val = N + 1 := rfl
+  set σ : Equiv.Perm (Fin (N + 2)) := Equiv.swap iN iN1 with hσ_def
+  -- Helper: cfg evaluated at the basis indices.
+  have hcfg_basis : ∀ i : Fin N, cfg ⟨i.val, by omega⟩ = basis i := by
+    intro i
+    show (if h : (⟨i.val, by omega⟩ : Fin (N + 2)).val < N
+            then basis ⟨(⟨i.val, by omega⟩ : Fin (N + 2)).val, h⟩
+            else if (⟨i.val, by omega⟩ : Fin (N + 2)).val = N then x else y)
+          = basis i
+    rw [dif_pos i.isLt]
+  -- Helper: cfg at iN is x.
+  have hcfg_iN : cfg iN = x := by
+    show (if h : iN.val < N then basis ⟨iN.val, h⟩
+            else if iN.val = N then x else y) = x
+    rw [dif_neg (by show ¬ (N < N); exact Nat.lt_irrefl N)]
+    show (if N = N then x else y) = x
+    rw [if_pos rfl]
+  -- Helper: cfg at iN1 is y.
+  have hcfg_iN1 : cfg iN1 = y := by
+    show (if h : iN1.val < N then basis ⟨iN1.val, h⟩
+            else if iN1.val = N then x else y) = y
+    rw [dif_neg (by show ¬ (N + 1 < N); exact by omega)]
+    show (if N + 1 = N then x else y) = y
+    rw [if_neg (by omega)]
+  -- Helper: σ fixes basis indices (k < N).
+  have hσ_basis : ∀ k : Fin (N + 2), k.val < N → σ k = k := by
+    intro k hk
+    have hk_ne_N : k ≠ iN := by
+      intro h
+      have hkN : k.val = iN.val := by rw [h]
+      rw [hiN_val] at hkN
+      omega
+    have hk_ne_N1 : k ≠ iN1 := by
+      intro h
+      have hkN1 : k.val = iN1.val := by rw [h]
+      rw [hiN1_val] at hkN1
+      omega
+    show Equiv.swap iN iN1 k = k
+    rw [Equiv.swap_apply_of_ne_of_ne hk_ne_N hk_ne_N1]
+  -- Helper: σ swaps iN ↔ iN1.
+  have hσ_iN : σ iN = iN1 := by
+    show Equiv.swap iN iN1 iN = iN1
+    exact Equiv.swap_apply_left iN iN1
+  have hσ_iN1 : σ iN1 = iN := by
+    show Equiv.swap iN iN1 iN1 = iN
+    exact Equiv.swap_apply_right iN iN1
+  -- K-symmetry of σ on cfg.
+  have hKsym : ∀ i j : Fin (N + 2),
+      K (cfg (σ i)) (cfg (σ j)) = K (cfg i) (cfg j) := by
+    intro i j
+    -- Case split on whether i, j are basis indices, iN, or iN1.
+    by_cases hi : i.val < N
+    · -- σ i = i (fixed).
+      rw [hσ_basis i hi]
+      by_cases hj : j.val < N
+      · rw [hσ_basis j hj]
+      · -- j is iN or iN1.
+        by_cases hj_N : j.val = N
+        · -- j = iN.
+          have hj_eq : j = iN := by
+            apply Fin.ext; rw [hiN_val]; exact hj_N
+          rw [hj_eq, hσ_iN, hcfg_iN, hcfg_iN1]
+          have hi_eq : cfg i = basis ⟨i.val, hi⟩ := by
+            have := hcfg_basis ⟨i.val, hi⟩
+            convert this using 1
+          rw [hi_eq]
+          -- Goal: K (basis ⟨i.val, hi⟩) y = K (basis ⟨i.val, hi⟩) x.
+          rw [K_symm _ y, K_symm _ x]
+          exact (hKeq ⟨i.val, hi⟩).symm
+        · -- j = iN1.
+          have hj_eq : j = iN1 := by
+            apply Fin.ext
+            rw [hiN1_val]
+            have hj_lt : j.val < N + 2 := j.isLt
+            omega
+          rw [hj_eq, hσ_iN1, hcfg_iN1, hcfg_iN]
+          have hi_eq : cfg i = basis ⟨i.val, hi⟩ := by
+            have := hcfg_basis ⟨i.val, hi⟩
+            convert this using 1
+          rw [hi_eq]
+          -- Goal: K (basis ⟨i.val, hi⟩) x = K (basis ⟨i.val, hi⟩) y.
+          rw [K_symm _ x, K_symm _ y]
+          exact hKeq ⟨i.val, hi⟩
+    · -- i is iN or iN1.
+      by_cases hi_N : i.val = N
+      · -- i = iN.
+        have hi_eq : i = iN := by
+          apply Fin.ext; rw [hiN_val]; exact hi_N
+        rw [hi_eq, hσ_iN, hcfg_iN, hcfg_iN1]
+        by_cases hj : j.val < N
+        · rw [hσ_basis j hj]
+          have hj_eq : cfg j = basis ⟨j.val, hj⟩ := by
+            have := hcfg_basis ⟨j.val, hj⟩
+            convert this using 1
+          rw [hj_eq]
+          -- Goal: K y (basis ⟨j.val, hj⟩) = K x (basis ⟨j.val, hj⟩).
+          exact (hKeq ⟨j.val, hj⟩).symm
+        · -- j is iN or iN1.
+          by_cases hj_N : j.val = N
+          · -- j = iN: swap maps both to iN1; goal becomes K y y = K x x.
+            have hj_eq : j = iN := by
+              apply Fin.ext; rw [hiN_val]; exact hj_N
+            rw [hj_eq, hσ_iN, hcfg_iN, hcfg_iN1, K_refl, K_refl]
+          · -- j = iN1.
+            have hj_eq : j = iN1 := by
+              apply Fin.ext
+              rw [hiN1_val]
+              have hj_lt : j.val < N + 2 := j.isLt
+              omega
+            rw [hj_eq, hσ_iN1, hcfg_iN1, hcfg_iN]
+            -- Goal: K y x = K x y.
+            exact K_symm y x
+      · -- i = iN1.
+        have hi_eq : i = iN1 := by
+          apply Fin.ext
+          rw [hiN1_val]
+          have hi_lt : i.val < N + 2 := i.isLt
+          omega
+        rw [hi_eq, hσ_iN1, hcfg_iN1, hcfg_iN]
+        by_cases hj : j.val < N
+        · rw [hσ_basis j hj]
+          have hj_eq : cfg j = basis ⟨j.val, hj⟩ := by
+            have := hcfg_basis ⟨j.val, hj⟩
+            convert this using 1
+          rw [hj_eq]
+          -- Goal: K x (basis ⟨j.val, hj⟩) = K y (basis ⟨j.val, hj⟩).
+          exact hKeq ⟨j.val, hj⟩
+        · -- j is iN or iN1.
+          by_cases hj_N : j.val = N
+          · -- j = iN.
+            have hj_eq : j = iN := by
+              apply Fin.ext; rw [hiN_val]; exact hj_N
+            rw [hj_eq, hσ_iN, hcfg_iN, hcfg_iN1]
+            -- Goal: K x y = K y x.
+            exact K_symm x y
+          · -- j = iN1.
+            have hj_eq : j = iN1 := by
+              apply Fin.ext
+              rw [hiN1_val]
+              have hj_lt : j.val < N + 2 := j.isLt
+              omega
+            rw [hj_eq, hσ_iN1, hcfg_iN1, hcfg_iN, K_refl, K_refl]
+  -- Apply (S4) to obtain the global K-automorphism g.
+  obtain ⟨g, hg, hg_cfg⟩ := hS4 cfg σ hKsym
+  refine ⟨g, hg, ?_, ?_, ?_⟩
+  · -- g fixes the basis pointwise.
+    intro i
+    -- σ fixes ⟨i.val, _⟩ ∈ Fin (N+2), so g(cfg ⟨i.val, _⟩) = cfg ⟨i.val, _⟩.
+    have h_idx_lt : (⟨i.val, by omega⟩ : Fin (N + 2)).val < N := i.isLt
+    have h_fixed := hg_cfg ⟨i.val, by omega⟩
+    rw [hσ_basis ⟨i.val, by omega⟩ h_idx_lt] at h_fixed
+    rw [hcfg_basis i] at h_fixed
+    exact h_fixed
+  · -- g x = y.
+    have h_swap := hg_cfg iN
+    rw [hσ_iN, hcfg_iN, hcfg_iN1] at h_swap
+    exact h_swap
+  · -- g y = x.
+    have h_swap := hg_cfg iN1
+    rw [hσ_iN1, hcfg_iN1, hcfg_iN] at h_swap
+    exact h_swap
+
 /-- **(B) Basis Isotropy, direct from (S4) (conditional form).**
 
     **The substantive content.** The paper's proof at line ~454 of
@@ -3771,20 +2996,12 @@ theorem saturation_hierarchy
     (basis : Fin N → α)
     (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1)
     (hSRC : SelfReferentialConsistency K)
-    -- Wave 2 / final-cleanup: structural hypothesis for (S3).
-    -- See `S3_finite_determinacy_completely_unconditional` for the
-    -- closure of (S3) given this hypothesis. The hypothesis itself is
-    -- discharged by augmented (B) (paper line 416 form); see
-    -- `aut_xy_basis_transitive_from_augB` for the bridge.
-    (aut_xy_basis_transitive :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i))
     -- Final-final-cleanup: structural hypothesis for closing (S4) for
     -- ARBITRARY σ via the general-σ K-amalgam infrastructure (paper
     -- lines 421-434). THREE-conjunct package — no involutivity required.
+    -- The new (S3) Basis-Profile Symmetry follows directly from this
+    -- (S4) closure via `S3_basis_profile_symmetry`, so no separate
+    -- (S3) hypothesis is needed.
     (witness_inputs_gen :
       ∀ {m : ℕ} (cfg : Fin m → α) (σ : Equiv.Perm (Fin m)),
         (∀ i j, K (cfg (σ i)) (cfg (σ j)) = K (cfg i) (cfg j)) →
@@ -3805,8 +3022,14 @@ theorem saturation_hierarchy
     (∀ x y : α, (∀ z, K x z = K y z) → x = y) ∧
     -- (S2) Completeness: every K-consistent profile is realised in α
     (∀ p : α → ℝ, IsKConsistentProfile K p → ∃ x : α, ∀ y, K x y = p y) ∧
-    -- (S3) Finite Determinacy: the basis is a separating set
-    (∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) → x = y) ∧
+    -- (S3) Basis-Profile Symmetry (paper line 390): equal basis
+    -- profiles yield an Aut-element fixing the basis pointwise and
+    -- swapping x ↔ y. Replaces the v1 "basis-profile equality forces
+    -- state equality" reading, which is false in CP^{N-1}.
+    (∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) →
+        ∃ g : α ≃ α, IsKAut K g
+          ∧ (∀ i : Fin N, g (basis i) = basis i)
+          ∧ g x = y ∧ g y = x) ∧
     -- (S4) Structural Leibniz: K-symmetries of finite configs extend globally
     (∀ {m : ℕ} (cfg : Fin m → α) (σ : Equiv.Perm (Fin m)),
         (∀ i j, K (cfg (σ i)) (cfg (σ j)) = K (cfg i) (cfg j)) →
@@ -3830,54 +3053,37 @@ theorem saturation_hierarchy
         (∀ i j, i ≠ j → K (b₂ i) (b₂ j) = 1) →
         ∃ g : α ≃ α, IsKAut K g ∧ ∃ σ : Equiv.Perm (Fin N),
             ∀ i, g (b₁ i) = b₂ (σ i)) := by
+  -- (S4) at ARBITRARY σ supplies the paper-form (S4) used by the new
+  -- (S3) Basis-Profile Symmetry.
+  have hS4_perm : ∀ {m : ℕ} (cfg : Fin m → α) (σ : Equiv.Perm (Fin m)),
+      (∀ i j, K (cfg (σ i)) (cfg (σ j)) = K (cfg i) (cfg j)) →
+      ∃ g : α ≃ α, IsKAut K g ∧ ∀ i, g (cfg i) = cfg (σ i) := by
+    intro m cfg σ hsym
+    exact S4_structural_leibniz_amalgam_general K K_refl K_symm K_nonneg
+      K_le_one hSRC witness_inputs_gen cfg σ hsym
   refine ⟨?S1, ?S2, ?S3, ?S4, ?I, ?O, ?T, ?B⟩
   case S1 =>
-    -- (S1) Identity. Direct via S1_identity_direct.
     exact S1_identity_direct K hSRC
   case S2 =>
-    -- (S2) Completeness. Direct from SRC's `no_richer_extension` clause.
-    -- Proof extracted to `S2_completeness_direct`.
     exact S2_completeness_direct K hSRC
   case S3 =>
-    -- (S3) Finite Determinacy. Closed (final cleanup) via
-    -- `S3_finite_determinacy_completely_unconditional`, which combines
-    -- the Wave 2 Agent E `extend_oracle_from_SRC_aux` (sorry-free) with
-    -- the named structural hypothesis `aut_xy_basis_transitive` now
-    -- threaded into the master signature. Paper lines 402-418.
-    have hN_pos : 0 < N := by omega
-    exact S3_finite_determinacy_completely_unconditional K K_nonneg K_le_one
-      K_refl K_symm K_ident hSRC hN_pos basis basis_dist aut_xy_basis_transitive
+    -- (S3) Basis-Profile Symmetry, derived from the (S4) closure.
+    exact S3_basis_profile_symmetry_direct K K_refl K_symm hS4_perm basis basis_dist
   case S4 =>
-    -- (S4) Structural Leibniz. Final-final-cleanup: closed via
-    -- `S4_structural_leibniz_amalgam_general`, which uses the general-σ
-    -- K-amalgam (no involutivity restriction) packaged in
-    -- `witness_inputs_gen`. Paper lines 421-434.
-    exact S4_structural_leibniz_amalgam_general K K_refl K_symm K_nonneg
-      K_le_one hSRC witness_inputs_gen
+    intro m cfg σ hsym
+    exact hS4_perm cfg σ hsym
   case I =>
-    -- (I) Imperceptibility. Direct via I_imperceptibility_direct, which
-    -- requires K_ident on α (Round 5 framework patch). With K_ident
-    -- threaded into the master-theorem signature, this discharges cleanly.
     have hN_ge_2 : 2 ≤ N := by omega
     exact I_imperceptibility_direct K K_nonneg K_le_one K_refl K_symm K_ident
       hSRC hN_ge_2 basis basis_dist
   case O =>
-    -- (O) Operational Completeness. After the Round 5 framework patch,
-    -- (O) is no longer derivable unconditionally from SRC + 4 kernel
-    -- axioms; it is supplied as the new `K_ident` hypothesis on the
-    -- master theorem (paper-equivalent to (O) itself, paper Theorem
-    -- thm:src-master(O)).
     intro x y h
     exact K_ident x y h
   case T =>
-    -- (T) Transport Consistency. Direct via T_transport_consistency_direct.
     have : Nonempty α := ⟨basis ⟨0, by omega⟩⟩
     intro V θ hθ
     exact T_transport_consistency_direct K hSRC θ hθ
   case B =>
-    -- (B) Basis Isotropy. Final-final-cleanup: closed via
-    -- `B_basis_isotropy_direct` taking the function-form (S4)
-    -- `hS4_general` as a typed hypothesis. Paper line 454.
     intro b₁ b₂ hb₁ hb₂
     exact B_basis_isotropy_direct K K_refl hS4_general b₁ b₂ hb₁ hb₂
 
@@ -3931,17 +3137,11 @@ theorem saturation_hierarchy_involutive
     (basis : Fin N → α)
     (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1)
     (hSRC : SelfReferentialConsistency K)
-    -- Structural hypothesis for closing (S3): augmented (B) form
-    -- (Aut_{x,y} fixator transitivity on bases; paper line 416).
-    (aut_xy_basis_transitive :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i))
     -- Structural hypothesis for closing the involutive subcase of (S4):
     -- the four-conjunct K-amalgam witness package surfaced by
-    -- `S4_structural_leibniz_amalgam_involutive` (Wave 2).
+    -- `S4_structural_leibniz_amalgam_involutive` (Wave 2). The new
+    -- (S3) Basis-Profile Symmetry needs (S4) for the SPECIFIC
+    -- involution swapping x↔y, so this involutive package suffices.
     (witness_inputs :
       ∀ {m : ℕ} (cfg : Fin m → α) (σ : Equiv.Perm (Fin m)),
         (∀ i j, K (cfg (σ i)) (cfg (σ j)) = K (cfg i) (cfg j)) →
@@ -3963,8 +3163,14 @@ theorem saturation_hierarchy_involutive
     (∀ x y : α, (∀ z, K x z = K y z) → x = y) ∧
     -- (S2) Completeness: every K-consistent profile is realised in α
     (∀ p : α → ℝ, IsKConsistentProfile K p → ∃ x : α, ∀ y, K x y = p y) ∧
-    -- (S3) Finite Determinacy: the basis is a separating set
-    (∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) → x = y) ∧
+    -- (S3) Basis-Profile Symmetry (paper line 390): equal basis
+    -- profiles yield an Aut-element fixing the basis pointwise and
+    -- swapping x ↔ y. Replaces the v1 "basis-profile equality forces
+    -- state equality" reading, which is false in CP^{N-1}.
+    (∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) →
+        ∃ g : α ≃ α, IsKAut K g
+          ∧ (∀ i : Fin N, g (basis i) = basis i)
+          ∧ g x = y ∧ g y = x) ∧
     -- (S4) Structural Leibniz: K-symmetries of finite configs extend
     -- (involutive σ subcase only; see theorem doc for the restriction).
     (∀ {m : ℕ} (cfg : Fin m → α) (σ : Equiv.Perm (Fin m)),
@@ -3986,42 +3192,39 @@ theorem saturation_hierarchy_involutive
         (∀ i j, i ≠ j → K (b₂ i) (b₂ j) = 1) →
         ∃ g : α ≃ α, IsKAut K g ∧ ∃ σ : Equiv.Perm (Fin N),
             ∀ i, g (b₁ i) = b₂ (σ i)) := by
+  -- (S4) at involutive σ supplies the paper-form (S4) used by the new
+  -- (S3) Basis-Profile Symmetry. The configuration involution
+  -- swapping x ↔ y while fixing the basis IS involutive, so the
+  -- four-conjunct package suffices.
+  have hS4_perm : ∀ {m : ℕ} (cfg : Fin m → α) (σ : Equiv.Perm (Fin m)),
+      (∀ i j, K (cfg (σ i)) (cfg (σ j)) = K (cfg i) (cfg j)) →
+      ∃ g : α ≃ α, IsKAut K g ∧ ∀ i, g (cfg i) = cfg (σ i) := by
+    intro m cfg σ hsym
+    exact S4_structural_leibniz_amalgam_involutive K K_refl K_symm K_nonneg
+      K_le_one hSRC witness_inputs cfg σ hsym
   refine ⟨?S1, ?S2, ?S3, ?S4, ?I, ?O, ?T, ?B⟩
   case S1 =>
-    -- (S1) Identity. Direct via S1_identity_direct.
     exact S1_identity_direct K hSRC
   case S2 =>
-    -- (S2) Completeness. Direct via S2_completeness_direct.
     exact S2_completeness_direct K hSRC
   case S3 =>
-    -- (S3) Finite Determinacy via the Wave 2 closure
-    -- `S3_finite_determinacy_completely_unconditional`.
-    have hN_pos : 0 < N := by omega
-    exact S3_finite_determinacy_completely_unconditional K K_nonneg K_le_one
-      K_refl K_symm K_ident hSRC hN_pos basis basis_dist aut_xy_basis_transitive
+    -- (S3) Basis-Profile Symmetry, derived from the (S4) closure.
+    exact S3_basis_profile_symmetry_direct K K_refl K_symm hS4_perm basis basis_dist
   case S4 =>
-    -- (S4) Structural Leibniz, involutive σ subcase. Closed via
-    -- `S4_structural_leibniz_amalgam_involutive` taking
-    -- `witness_inputs` as the four-conjunct structural package.
-    exact S4_structural_leibniz_amalgam_involutive K K_refl K_symm K_nonneg
-      K_le_one hSRC witness_inputs
+    intro m cfg σ hsym
+    exact hS4_perm cfg σ hsym
   case I =>
-    -- (I) Imperceptibility. Direct via I_imperceptibility_direct.
     have hN_ge_2 : 2 ≤ N := by omega
     exact I_imperceptibility_direct K K_nonneg K_le_one K_refl K_symm K_ident
       hSRC hN_ge_2 basis basis_dist
   case O =>
-    -- (O) Operational Completeness from K_ident.
     intro x y h
     exact K_ident x y h
   case T =>
-    -- (T) Transport Consistency. Direct via T_transport_consistency_direct.
     have : Nonempty α := ⟨basis ⟨0, by omega⟩⟩
     intro V θ hθ
     exact T_transport_consistency_direct K hSRC θ hθ
   case B =>
-    -- (B) Basis Isotropy. Closed via `B_basis_isotropy_direct` taking
-    -- the function-form (S4) as a typed hypothesis.
     intro b₁ b₂ hb₁ hb₂
     exact B_basis_isotropy_direct K K_refl hS4_general b₁ b₂ hb₁ hb₂
 
@@ -4053,13 +3256,6 @@ theorem saturation_hierarchy_general
     (basis : Fin N → α)
     (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1)
     (hSRC : SelfReferentialConsistency K)
-    -- Structural hypothesis for (S3): augmented (B) (paper line 416).
-    (aut_xy_basis_transitive :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i))
     -- Structural hypothesis for closing (S4) for ARBITRARY σ via the
     -- general-σ K-amalgam infrastructure (final-gap closure):
     -- THREE-conjunct package — no involutivity required.
@@ -4081,8 +3277,12 @@ theorem saturation_hierarchy_general
     (∀ x y : α, (∀ z, K x z = K y z) → x = y) ∧
     -- (S2) Completeness
     (∀ p : α → ℝ, IsKConsistentProfile K p → ∃ x : α, ∀ y, K x y = p y) ∧
-    -- (S3) Finite Determinacy
-    (∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) → x = y) ∧
+    -- (S3) Basis-Profile Symmetry (paper line 390): equal basis profiles
+    -- yield an Aut-element fixing the basis pointwise and swapping x ↔ y.
+    (∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) →
+        ∃ g : α ≃ α, IsKAut K g
+          ∧ (∀ i : Fin N, g (basis i) = basis i)
+          ∧ g x = y ∧ g y = x) ∧
     -- (S4) Structural Leibniz: for ARBITRARY σ (final-gap closure).
     (∀ {m : ℕ} (cfg : Fin m → α) (σ : Equiv.Perm (Fin m)),
         (∀ i j, K (cfg (σ i)) (cfg (σ j)) = K (cfg i) (cfg j)) →
@@ -4102,20 +3302,27 @@ theorem saturation_hierarchy_general
         (∀ i j, i ≠ j → K (b₂ i) (b₂ j) = 1) →
         ∃ g : α ≃ α, IsKAut K g ∧ ∃ σ : Equiv.Perm (Fin N),
             ∀ i, g (b₁ i) = b₂ (σ i)) := by
+  -- Closure of (S4) at ARBITRARY σ supplies the paper-form (S4) used
+  -- by the new (S3) Basis-Profile Symmetry: this avoids assuming an
+  -- additional hypothesis for (S3).
+  have hS4_perm : ∀ {m : ℕ} (cfg : Fin m → α) (σ : Equiv.Perm (Fin m)),
+      (∀ i j, K (cfg (σ i)) (cfg (σ j)) = K (cfg i) (cfg j)) →
+      ∃ g : α ≃ α, IsKAut K g ∧ ∀ i, g (cfg i) = cfg (σ i) := by
+    intro m cfg σ hsym
+    exact S4_structural_leibniz_amalgam_general K K_refl K_symm K_nonneg
+      K_le_one hSRC witness_inputs_gen cfg σ hsym
   refine ⟨?S1, ?S2, ?S3, ?S4, ?I, ?O, ?T, ?B⟩
   case S1 =>
     exact S1_identity_direct K hSRC
   case S2 =>
     exact S2_completeness_direct K hSRC
   case S3 =>
-    have hN_pos : 0 < N := by omega
-    exact S3_finite_determinacy_completely_unconditional K K_nonneg K_le_one
-      K_refl K_symm K_ident hSRC hN_pos basis basis_dist aut_xy_basis_transitive
+    -- (S3) Basis-Profile Symmetry via the (S4) closure plus the new
+    -- `S3_basis_profile_symmetry_direct` theorem.
+    exact S3_basis_profile_symmetry_direct K K_refl K_symm hS4_perm basis basis_dist
   case S4 =>
-    -- (S4) for ARBITRARY σ via `S4_structural_leibniz_amalgam_general`,
-    -- which uses the general-σ K-amalgam (no `hinv`).
-    exact S4_structural_leibniz_amalgam_general K K_refl K_symm K_nonneg
-      K_le_one hSRC witness_inputs_gen
+    intro m cfg σ hsym
+    exact hS4_perm cfg σ hsym
   case I =>
     have hN_ge_2 : 2 ≤ N := by omega
     exact I_imperceptibility_direct K K_nonneg K_le_one K_refl K_symm K_ident
@@ -4172,35 +3379,40 @@ theorem S2_completeness
     ∀ p : α → ℝ, IsKConsistentProfile K p → ∃ x : α, ∀ y, K x y = p y :=
   S2_completeness_direct K hSRC
 
-/-- **(S3) Finite Determinacy.** From SRC + finite capacity: the basis
-    is a finite separating set. Paper Theorem `thm:src-master`(S3),
-    lines ~402--418.
+/-- **(S3) Basis-Profile Symmetry.** From SRC + finite capacity: equal
+    basis profiles yield an Aut-element fixing the basis pointwise and
+    swapping x ↔ y. Paper Theorem `thm:src-master`(S3), lines ~390 and
+    ~406. Replaces the v1 reading "K-profile equality on a basis
+    implies x = y" (which is genuinely false in CP^{N-1}: orthogonal
+    rays can share basis K-profiles).
 
-    **Lean status:** PROVED via `S3_finite_determinacy_completely_unconditional`
-    (Wave 2 Agent E + final-cleanup), conditional on the named structural
-    hypothesis `aut_xy_basis_transitive` (Aut_{x,y} fixator transitivity
-    on bases; paper line 416). The standalone `_direct` form bypasses
+    **Lean status:** PROVED sorry-free via `S3_basis_profile_symmetry_direct`,
+    consuming only the paper-form (S4) (permutation-form, general σ)
+    plus `K_refl` and `K_symm`. The standalone `_direct` form bypasses
     the master theorem so that this projection does not pick up sorries
     from other clauses. -/
-theorem S3_finite_determinacy
+theorem S3_basis_profile_symmetry
     (K : α → α → ℝ)
-    (K_nonneg : ∀ x y, 0 ≤ K x y) (K_le_one : ∀ x y, K x y ≤ 1)
+    (_K_nonneg : ∀ x y, 0 ≤ K x y) (_K_le_one : ∀ x y, K x y ≤ 1)
     (K_refl : ∀ x, K x x = 0) (K_symm : ∀ x y, K x y = K y x)
-    (K_ident : ∀ x y, K x y = 0 → x = y)
-    (N : ℕ) (hN_ge_3 : 3 ≤ N)
-    (basis : Fin N → α)
-    (basis_dist : ∀ i j : Fin N, i ≠ j → K (basis i) (basis j) = 1)
-    (hSRC : SelfReferentialConsistency K)
-    (aut_xy_basis_transitive :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i)) :
-    ∀ x y : α, (∀ i : Fin N, K x (basis i) = K y (basis i)) → x = y := by
-  have hN_pos : 0 < N := by omega
-  exact S3_finite_determinacy_completely_unconditional K K_nonneg K_le_one
-    K_refl K_symm K_ident hSRC hN_pos basis basis_dist aut_xy_basis_transitive
+    (_K_ident : ∀ x y, K x y = 0 → x = y)
+    (_N : ℕ) (_hN_ge_3 : 3 ≤ _N)
+    (basis : Fin _N → α)
+    (basis_dist : ∀ i j : Fin _N, i ≠ j → K (basis i) (basis j) = 1)
+    (_hSRC : SelfReferentialConsistency K)
+    -- Paper-form (S4) (permutation form, general σ): K-symmetries of
+    -- finite configurations extend to global K-automorphisms. Supplied
+    -- by `S4_structural_leibniz_amalgam_general` once the K-amalgam
+    -- witness inputs are discharged.
+    (hS4 :
+      ∀ {m : ℕ} (cfg : Fin m → α) (σ : Equiv.Perm (Fin m)),
+        (∀ i j, K (cfg (σ i)) (cfg (σ j)) = K (cfg i) (cfg j)) →
+        ∃ g : α ≃ α, IsKAut K g ∧ ∀ i, g (cfg i) = cfg (σ i)) :
+    ∀ x y : α, (∀ i : Fin _N, K x (basis i) = K y (basis i)) →
+      ∃ g : α ≃ α, IsKAut K g
+        ∧ (∀ i : Fin _N, g (basis i) = basis i)
+        ∧ g x = y ∧ g y = x :=
+  S3_basis_profile_symmetry_direct K K_refl K_symm hS4 basis basis_dist
 
 /-- **(S4) Structural Leibniz.** From SRC + finite capacity:
     K-symmetries of finite configurations extend to global
@@ -4334,17 +3546,28 @@ theorem B_basis_isotropy
 /-- **Bridge: SRC + finite capacity ⇒ v1 `Axiom2` packaging.**
 
     Given a `DistinguishabilitySpace α` with finite capacity (a basis of
-    size `N ≥ 3` with K(b_i, b_j) = 1 - δ_{ij}) and SRC, all of the
-    structure-fields of the v1 `Axiom2` (paper v1's saturation
-    sub-clauses) are recovered as theorems. This shows that downstream
-    Lean files (which still consume `Axiom2`) are not affected by the
-    re-axiomatisation: any space satisfying SRC + finite capacity
-    automatically satisfies the v1 axioms.
+    size `N ≥ 3` with K(b_i, b_j) = 1 - δ_{ij}) and SRC, the
+    SRC-derivable structure-fields of the v1 `Axiom2` are recovered as
+    theorems via the saturation hierarchy.
 
-    **Lean status:** statement + proof structure given, with `sorry`
-    placeholders for the saturation_hierarchy projections themselves
-    (since `saturation_hierarchy` is `sorry`); once the master theorem
-    is proved, this construction is unconditional. -/
+    **The `saturation` field is supplied as an input.** The v1 reading
+    of `Axiom2.saturation` ("K-profile equality on the basis ⟹ x = y")
+    is genuinely false in CP^{N-1} (orthogonal rays can share basis
+    K-profiles), so it is no longer derivable from SRC + finite
+    capacity. The v2 paper restates (S3) as
+    *Basis-Profile Symmetry* (paper line 390): equal basis profiles
+    yield only the existence of an Aut-element fixing the basis and
+    swapping x ↔ y, not state equality. The `Axiom2.saturation` field
+    is retained in the v1 packaging for downstream API stability
+    (consumed e.g. by `Basic.kProfile_injective`); concrete instances
+    that satisfy it must discharge the field themselves (e.g., for
+    classical N-state registers, where x and y are basis vectors and
+    the v1 reading IS true). The new (S3) Basis-Profile Symmetry, the
+    actual SRC-derivable content, is exposed separately as
+    `S3_basis_profile_symmetry` / `S3_basis_profile_symmetry_direct`.
+
+    **Lean status:** PROVED, sorry-free, conditional on the explicit
+    `saturation` input. -/
 def axiom2_from_SRC
     (ds : DistinguishabilitySpace α)
     (N : ℕ) (hN_ge_3 : 3 ≤ N)
@@ -4353,12 +3576,19 @@ def axiom2_from_SRC
     (hSRC : SelfReferentialConsistency ds.K)
     (topology : TopologicalSpace α)
     (connected : @ConnectedSpace α topology)
-    (aut_xy_basis_transitive :
-      ∀ x y : α, ∀ T₁ T₂ : Fin N → α,
-        (∀ i j : Fin N, i ≠ j → ds.K (T₁ i) (T₁ j) = 1) →
-        (∀ i j : Fin N, i ≠ j → ds.K (T₂ i) (T₂ j) = 1) →
-        ∃ g : α ≃ α, IsKAut ds.K g ∧ g x = x ∧ g y = y ∧
-          ∃ σ : Equiv.Perm (Fin N), ∀ i, g (T₁ i) = T₂ (σ i)) :
+    -- Explicit `saturation` input. The v1 statement
+    -- `K(x, basis i) = K(y, basis i) ∀ i ⟹ x = y` is FALSE in
+    -- CP^{N-1} (counterexample at the level of orthogonal rays
+    -- sharing basis K-profiles), so it cannot be derived from SRC +
+    -- finite capacity. The field is retained for downstream API
+    -- stability (`Basic.kProfile_injective` consumes it). Callers
+    -- working in QM-style state spaces must NOT instantiate this
+    -- field at the level of rays; classical / vector-space instances
+    -- (where states are basis vectors) discharge it directly. The
+    -- SRC-derivable content is the new (S3) Basis-Profile Symmetry,
+    -- exposed separately as `S3_basis_profile_symmetry`.
+    (saturation : ∀ (x y : α),
+      (∀ (i : Fin N), ds.K x (basis i) = ds.K y (basis i)) → x = y) :
     Axiom2 α := by
   have hN_ge_2 : 2 ≤ N := Nat.le_of_lt (Nat.lt_of_lt_of_le (by norm_num) hN_ge_3)
   refine
@@ -4375,27 +3605,14 @@ def axiom2_from_SRC
       topology := topology
       connected := connected
       completeness := ?_
-      saturation := ?_
+      saturation := saturation
     }
-  · -- K_ident: comes from (O) Operational Completeness. After the
-    -- Round 5 framework patch, (O) requires `K_ident` as a hypothesis;
-    -- we satisfy this by taking it directly from the supplied
-    -- `DistinguishabilitySpace` (which already carries `K_ident` as
-    -- a structure field — so the bridge is consistent: ds already
-    -- "has" (O), and (O) round-trips back through saturation as
-    -- `O_operational_completeness`).
+  · -- K_ident: comes from (O) Operational Completeness.
     exact O_operational_completeness ds.K ds.K_nonneg ds.K_le_one
       ds.K_refl ds.K_symm ds.K_ident N hN_ge_3 basis basis_dist hSRC
   · -- completeness: from (S1) Identity.
     exact S1_identity ds.K ds.K_nonneg ds.K_le_one
       ds.K_refl ds.K_symm N hN_ge_3 basis basis_dist hSRC
-  · -- saturation: from (S3) Finite Determinacy. After the final-cleanup
-    -- threading, (S3) takes `aut_xy_basis_transitive` as a structural
-    -- hypothesis (paper line 416 augmented (B) form). We pass through
-    -- the bridge's matching hypothesis here.
-    exact S3_finite_determinacy ds.K ds.K_nonneg ds.K_le_one
-      ds.K_refl ds.K_symm ds.K_ident N hN_ge_3 basis basis_dist hSRC
-      aut_xy_basis_transitive
 
 /-- **Bridge: SRC ⇒ v1 `StructuralLeibniz` packaging.**
 
