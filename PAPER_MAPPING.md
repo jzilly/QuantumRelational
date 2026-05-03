@@ -42,12 +42,12 @@ below have been updated:
 - `thm:complex` (v1) → cut; content subsumed in `lem:sheaf-complex`.
 - `thm:contextuality` (v1) → demoted to one-line corollary.
 
-A handful of label drifts in §10/§11/§12 (e.g. `thm:cyclic` →
-`thm:cyclic-spectrum`/`thm:dynamics-derived`, `thm:metric-bridge`
-absorbed into `thm:born-kernel` and `lem:metric-compatibility`,
-`thm:zeno-floor` and `cor:uv-cutoff` consolidated under
-`thm:quantum-sampling`) are out of scope for the v2 SRC sync but
-should be addressed in a follow-up cleanup of this document.
+Label drifts in §10/§11/§12 (`thm:cyclic` → `thm:cyclic-spectrum`,
+`thm:metric-bridge` absorbed into `thm:born-kernel` and
+`lem:metric-compatibility`, `thm:zeno-floor` and `cor:uv-cutoff`
+consolidated under `thm:quantum-sampling`) have been resolved in the
+rows below; the canonical labels are used and the deprecated aliases
+are recorded as deletion notes.
 
 ## Conventions
 
@@ -203,7 +203,7 @@ The Lean library realises the v2 axiom structure as follows:
 | Lem. `lem:cyclic-rigidity` | Rigidity of cyclic dynamics | `Basic.lean : cyclic_shift_injective`, `cyclic_shift_bijective`, `cyclic_shift_period_N`, `cyclic_shift_minimal_period_zero` | ✓ Proved | Explicit cyclic shift + order-N analysis |
 | Rem. `rem:kinematical-vs-dynamical` | Kinematical vs dynamical symmetries | — | ✗ Not formalized | Prose only |
 | Lem. `lem:minimal-rep` | Minimal representation is ℂ^N | `Basic.lean : minimal_representation_finrank`, `standard_basis_orthonormal_rep` | ✓ Proved | finrank = N; standard basis orthonormal |
-| Thm. `thm:cyclic` | G_dyn ≅ ℤ_N | `CyclicEigen.lean : cyclic_group_structure`, `orderOf_finRotate`, `card_zpowers_finRotate` | ✓ Proved | Via `IsCyclic (Subgroup.zpowers (finRotate N))` with cardinality N |
+| Thm. `thm:cyclic-spectrum` (formerly `thm:cyclic`) | G_dyn ≅ ℤ_N | `CyclicEigen.lean : cyclic_group_structure`, `orderOf_finRotate`, `card_zpowers_finRotate` | ✓ Proved | Via `IsCyclic (Subgroup.zpowers (finRotate N))` with cardinality N. Paper label renamed to `thm:cyclic-spectrum` (with `thm:dynamics-derived` covering the spectrum-side content). |
 | Rem. `rem:ZN-to-UN` | From ℤ_N to U(N) | — | ✗ Not formalized | Prose only |
 
 ---
@@ -260,10 +260,9 @@ The Lean library realises the v2 axiom structure as follows:
 | Cor. `thm:noether` | Energy conservation (Noether) | `Schrodinger.lean : energy_conservation_from_commutant`, `commutant_conjugation_invariant`, `energy_expectation_constant`, `commutator`, `commutator_antisymm`, `commutator_add_left`, `commutator_mul_right`, `unitary_group_inverse`, `unitary_group_inverse_right`, `unitary_group_assoc`, `unitary_from_adjoint_inverse` | ✓ Proved | ⟨ψ(t)\|H\|ψ(t)⟩ = ⟨ψ\|H\|ψ⟩ from [H, U] = 0 |
 | Prop. `thm:phase-granularity` | Phase resolution limit | `Scaling.lean : phase_granularity`, `phase_granularity_monotone`, `consecutive_phase_separation` | ✓ Proved | δφ = 2π/N |
 | Cor. `cor:phase-granularity` | Finite-N phase granularity | `Scaling.lean : phase_granularity`, `phase_granularity_monotone` | ✓ Proved | |
-| Thm. `thm:zeno-floor` | Informational Zeno floor | `Scaling.lean : zeno_floor_positive`, `zeno_floor_upper_bound`, `zeno_floor_monotone_decreasing`, `zeno_floor_qubit`, `zeno_product_in_unit_interval` | ✓ Proved | 1/N² floor properties |
-| Thm. `thm:quantum-sampling` | Finite-capacity reconstruction | `Scaling.lean : quantum_sampling_mub_tomography`; `Basic.lean : nyquist_sample_count` | ⚠ Partial | Parameter counting via `finrank`; Peter–Weyl argument itself is prose |
-| Cor. `cor:uv-cutoff` | Natural UV cutoff | `Scaling.lean : energy_gap_lower_bound` | ⚠ Partial | Only lower bound on gap formalized; ℏ/δt identification is prose |
-| Cor. `thm:quantum-sampling` | Heisenberg uncertainty | `Scaling.lean : entropic_uncertainty_nontrivial`, `maassen_uffink_mub_bound` (Maassen–Uffink form) | ⚠ Partial | Entropic form formalized; product form ΔE·Δt ≥ 2πℏ/N is prose |
+| Thm. `thm:quantum-sampling` | Finite-capacity reconstruction (incorporates Zeno floor, UV cutoff, Heisenberg uncertainty) | `Scaling.lean : quantum_sampling_mub_tomography`, `zeno_floor_positive`, `zeno_floor_upper_bound`, `zeno_floor_monotone_decreasing`, `zeno_floor_qubit`, `zeno_product_in_unit_interval`, `energy_gap_lower_bound`, `entropic_uncertainty_nontrivial`, `maassen_uffink_mub_bound`; `Basic.lean : nyquist_sample_count` | ⚠ Partial | Parameter counting via `finrank`; Peter–Weyl argument itself is prose. Subsumes the former `thm:zeno-floor` (1/N² floor properties), `cor:uv-cutoff` (lower bound on gap; ℏ/δt identification is prose), and a Heisenberg-uncertainty corollary (entropic form formalized; product form ΔE·Δt ≥ 2πℏ/N is prose). |
+| (deleted: `thm:zeno-floor`; content absorbed into `thm:quantum-sampling`) | Informational Zeno floor | `Scaling.lean : zeno_floor_positive`, `zeno_floor_upper_bound`, `zeno_floor_monotone_decreasing`, `zeno_floor_qubit`, `zeno_product_in_unit_interval` | ✓ Proved | Now packaged inside `thm:quantum-sampling`; Lean theorems unchanged. |
+| (deleted: `cor:uv-cutoff`; content absorbed into `thm:quantum-sampling`) | Natural UV cutoff | `Scaling.lean : energy_gap_lower_bound` | ⚠ Partial | Now packaged inside `thm:quantum-sampling`; Lean theorem unchanged. |
 | Thm. `thm:schrodinger` | Schrödinger equation | `Schrodinger.lean : unitary_preserves_K`, `K_pres_implies_transition_prob_pres`, `norm_sq_eq_implies_norm_eq`, `K_pres_implies_norm_inner_pres`, `schrodinger_derivation_chain`, `stone_gives_hermitian_generator`, `full_derivation_chain`, `inner_pres_iff_K_pres`; uses `ClassicalImports.wigner_continuity_unitary`, `ClassicalImports.stone_generator` | ⚠ Partial | Steps 1–2 (K-pres ⟹ unitary via Wigner + continuity) fully proved. Step 3 (existence of Hermitian generator) uses Stone as axiom; its current Lean witness is A = 0 (forward direction requires matrix-log theory not in Mathlib). See file headers for honesty notes. Matrix-exponential REVERSE direction fully proved (`ClassicalImports : exp_skewHermitian_unitary`, `skewHermitian_generator_gives_hermitian`, `exp_skewHermitian_group`, `exp_skewHermitian_id`) |
 
 ---
