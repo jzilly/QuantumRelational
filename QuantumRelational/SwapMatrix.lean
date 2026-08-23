@@ -8,7 +8,7 @@
   continuous dynamics, proving that N ≥ 3 is necessary for non-trivial
   continuous evolution.
 
-  Tier 1: Uses basic Mathlib linear algebra.
+  Uses basic Mathlib linear algebra.
   Lean status: fully-derived
 -/
 import Mathlib.LinearAlgebra.Matrix.NonsingularInverse

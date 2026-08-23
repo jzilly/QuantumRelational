@@ -14,7 +14,7 @@
            parameters that two bases provide, violating the minimal
            representation selected by Saturation.
 
-  Tier 1: Core argument is algebraic.
+  Core argument is algebraic.
   Lean status: fully-derived (modulo Frobenius classification axiom)
 
   Note: A previous version of this file invoked "non-commutativity prevents
@@ -28,8 +28,11 @@
   `quaternion_many_square_roots_of_neg_one` plus the dimensional mismatch.
 -/
 import QuantumRelational.CyclicEigen
+import QuantumRelational.CyclicRigidity
 import QuantumRelational.ClassicalImports
 import Mathlib.Algebra.Quaternion
+import Mathlib.LinearAlgebra.FiniteDimensional.Basic
+import Mathlib.LinearAlgebra.Basis.VectorSpace
 
 namespace QuantumRelational.Frobenius
 
@@ -193,6 +196,75 @@ theorem frobenius_forces_complex (d : ℕ) (hd_pos : 0 < d)
   · exact absurd h1 d_ne_one
   · exact h2
   · exact absurd h4 d_ne_four
+
+-- ============================================================
+-- Discharging the ℝ-exclusion (d ≠ 1) from the nondegeneracy mechanism
+-- ============================================================
+
+/-- **ℝ-exclusion at the algebra level (`d ≠ 1`), no longer a bare hypothesis.**
+
+    A finite-dimensional associative division algebra `A` over `ℝ` that
+    contains a primitive cube root of unity `a` (`a² + a + 1 = 0`) has real
+    dimension `≠ 1`. If it were `1`, then `A ≅ ℝ` (every element is a real
+    multiple of `1`, `finrank_eq_one_iff_of_nonzero'`), so `a = algebraMap ℝ A c`
+    for some real `c`; injectivity of `algebraMap` then forces
+    `c² + c + 1 = 0` in `ℝ`, impossible since `c² + c + 1 = (c + ½)² + ¾ > 0`.
+
+    This discharges the `d ≠ 1` case of `frobenius_forces_complex`: the
+    coefficient field must accommodate the `N`-cycle's non-real spectrum
+    (`CyclicRigidity.N_cycle_has_nonreal_root`), whose `N = 3` shadow is the
+    cube root of unity `CyclicRigidity.cube_root_of_unity_in_C`. It replaces
+    the field-selection exclusion of `ℝ` (Lemma `sheaf-complex`) with a
+    mechanized derivation. -/
+theorem finrank_ne_one_of_cube_root
+    (A : Type) [DivisionRing A] [Algebra ℝ A] [Module.Finite ℝ A]
+    (h : ∃ a : A, a ^ 2 + a + 1 = 0) :
+    Module.finrank ℝ A ≠ 1 := by
+  obtain ⟨a, ha⟩ := h
+  intro hdim
+  obtain ⟨c, hc⟩ := (finrank_eq_one_iff_of_nonzero' (1 : A) one_ne_zero).mp hdim a
+  have ha_eq : a = algebraMap ℝ A c := by
+    rw [← hc, Algebra.algebraMap_eq_smul_one]
+  rw [ha_eq] at ha
+  have hmap0 : algebraMap ℝ A (c ^ 2 + c + 1) = 0 := by
+    rw [map_add, map_add, map_pow, map_one]; exact ha
+  have hinj : Function.Injective (algebraMap ℝ A) := FaithfulSMul.algebraMap_injective ℝ A
+  have hc0 : c ^ 2 + c + 1 = 0 := by
+    have h0 : algebraMap ℝ A (c ^ 2 + c + 1) = algebraMap ℝ A 0 := by rw [hmap0]; simp
+    exact hinj h0
+  nlinarith [sq_nonneg (c + 1 / 2), hc0]
+
+/-- **ℂ is forced (`d = 2`) with the ℝ-exclusion discharged.**
+
+    For a finite-dimensional associative division algebra `A` over `ℝ` that
+    (i) contains a primitive cube root of unity (the non-real spectrum of the
+    nondegenerate `N`-cycle generator, `CyclicRigidity.cube_root_of_unity_in_C`)
+    and (ii) is not the quaternions (`finrank ≠ 4`, the composite-systems
+    obstruction `quaternion_excluded`), the real dimension is exactly `2`, i.e.
+    `A ≅ ℂ`.
+
+    Compared to `frobenius_forces_complex`, the `d ≠ 1` hypothesis is now
+    *derived* (via `finrank_ne_one_of_cube_root`) rather than assumed; only
+    the quaternionic exclusion `d ≠ 4` remains an input, and it is itself
+    algebraically witnessed by `quaternion_excluded`. -/
+theorem complex_dimension_from_cube_root
+    (A : Type) [DivisionRing A] [Algebra ℝ A] [Module.Finite ℝ A]
+    (hcube : ∃ a : A, a ^ 2 + a + 1 = 0)
+    (hd4 : Module.finrank ℝ A ≠ 4) :
+    Module.finrank ℝ A = 2 := by
+  have hpos : 0 < Module.finrank ℝ A := Module.finrank_pos
+  have hdiv : ClassicalImports.IsFinDimAssocDivAlgDim (Module.finrank ℝ A) :=
+    ⟨A, inferInstance, inferInstance, rfl⟩
+  have hd1 : Module.finrank ℝ A ≠ 1 := finrank_ne_one_of_cube_root A hcube
+  exact frobenius_forces_complex (Module.finrank ℝ A) hpos hdiv hd1 hd4
+
+/-- **The intended field ℂ satisfies the cube-root hypothesis and is the
+    `d = 2` case.** Confirms consistency of `complex_dimension_from_cube_root`:
+    `ℂ` contains a primitive cube root of unity and has real dimension `2`,
+    so the ℝ-exclusion is genuinely discharged (not vacuous). -/
+theorem complex_is_the_cube_root_witness :
+    (∃ a : ℂ, a ^ 2 + a + 1 = 0) ∧ Module.finrank ℝ ℂ = 2 :=
+  ⟨CyclicRigidity.cube_root_of_unity_in_C, Complex.finrank_real_complex⟩
 
 -- ============================================================
 -- Unconditional ℂ-is-unique via discharged IsFinDimAssocDivAlgDim

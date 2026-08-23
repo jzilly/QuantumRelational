@@ -8,14 +8,27 @@
   - ℋ_AB ≅ ℋ_A ⊗ ℋ_B  (tensor product)
   - K_AB((a,b),(a',b')) = 1 - (1 - K_A(a,a'))(1 - K_B(b,b'))
 
-  The kernel composition rule is derived from:
-  - Boundary conditions on f(x,y)
-  - Symmetry f(x,y) = f(y,x)
-  - Associativity f(f(x,y),z) = f(x,f(y,z))
-  via Aczél's theorem on associative binary operations.
+  The kernel composition rule is derived from clauses (i)--(vi) of paper
+  `thm:kernel-composition`:
+  - Boundary conditions on f(x,y)                          (i)
+  - Symmetry f(x,y) = f(y,x)                               (ii)
+  - Associativity f(f(x,y),z) = f(x,f(y,z))               (iii)
+  - Strict monotonicity                                    (iv)
+  - Continuity                                             (v)
+  - Independence / factor homogeneity                      (vi)
 
-  Tier 1: Algebraic/functional equation argument.
-  Lean status: fully-derived
+  Clauses (i)--(v) constrain the survival transform to the continuous strict
+  t-norm family; they do NOT single out multiplication (the Hamacher generator
+  φ(u)=u/(2-u) is a counterexample). The independence clause (vi) selects
+  multiplication of affinities, equivalently the tensor product. Uniqueness is
+  proved from (vi) directly (`mul_of_factor_homogeneous`), importing NO axiom.
+
+  Note: a previous version stated the unsound axiom
+  `aczel_continuous_associative_is_mul` (continuity + associativity ⟹ mul),
+  which is false; it has been removed.
+
+  Algebraic/functional equation argument.
+  Lean status: fully-derived (axiom-free in this module)
 -/
 import Mathlib.Tactic
 import Mathlib.Logic.Equiv.Fin.Basic
@@ -86,28 +99,34 @@ theorem kernel_compose_survival (x y : ℝ) :
   simp [kernel_compose]
 
 -- ============================================================
--- Uniqueness of Kernel Composition (Aczél's Theorem)
+-- Uniqueness of Kernel Composition (Independence Clause)
 -- ============================================================
 
 /-!
 ### Kernel Composition Uniqueness
 
-We prove that `kernel_compose` is the **unique** function satisfying the
-boundary conditions, symmetry, and associativity, via the **survival transform**
-(Aczél's theorem for associative binary operations).
+We prove that `kernel_compose` is the **unique** function satisfying clauses
+(i)--(vi) of paper `thm:kernel-composition`, via the **survival transform** and
+the **independence (factor-homogeneity) clause**.
 
 The proof proceeds in three layers:
 
 1. **`kernel_compose_unique_from_survival`** (sorry-free): Any function `f`
-   whose survival transform is multiplicative — i.e., `1 - f(x,y) = (1-x)(1-y)` —
+   whose survival transform is multiplicative, i.e. `1 - f(x,y) = (1-x)(1-y)`,
    must equal `kernel_compose`. This is the algebraic core.
 
-2. **`survival_multiplicativity_from_assoc`**: Under continuity + associativity +
-   boundary conditions, the survival transform *must* be multiplicative. This is
-   the hard analytic step (continuous commutative associative operation with
-   identity = multiplication), which we state as a lemma.
+2. **`survival_multiplicativity_from_homogeneity`**: Under the identity boundary
+   condition and factor homogeneity of the survival transform (clause (vi),
+   independence), the survival transform *is* multiplication. This is a direct
+   one-line consequence of `mul_of_factor_homogeneous`; it imports no axiom.
 
 3. **`kernel_compose_is_unique`**: The full uniqueness theorem combining (1) and (2).
+
+Clauses (i)--(v) alone (boundary/symmetry/associativity/strict monotonicity/
+continuity) only confine the survival transform to the continuous strict t-norm
+family and do NOT determine it (Hamacher counterexample); the independence
+clause (vi) is what selects multiplication. The former version routed through
+an unsound axiom `aczel_continuous_associative_is_mul`, now deleted.
 -/
 
 /-- **Survival-multiplicativity implies uniqueness (algebraic core).**
@@ -140,9 +159,12 @@ Key properties (all derived from boundary conditions on `f`):
 - `h` commutative (from `f` symmetric)
 - `h` associative (from `f` associative)
 
-Under continuity, these properties force `h(u,v) = u*v` (multiplication is the
-unique continuous commutative associative operation with identity 1 and
-absorbing element 0). -/
+These boundary/algebraic properties confine `h` to the continuous strict
+t-norm family, but they do NOT force `h(u,v) = u*v` on their own (the Hamacher
+generator `φ(u) = u/(2-u)` gives a counterexample). Multiplication is pinned by
+the additional independence clause: factor homogeneity `h(t*u,v) = t*h(u,v)`
+together with the identity `h(1,v) = v` gives `h(u,v) = u*v`
+(`mul_of_factor_homogeneous`). -/
 def survivalTransform (f : ℝ → ℝ → ℝ) (u v : ℝ) : ℝ := 1 - f (1 - u) (1 - v)
 
 theorem survivalTransform_zero_left (f : ℝ → ℝ → ℝ) (h1L : ∀ y, f 1 y = 1)
@@ -179,32 +201,44 @@ theorem survivalTransform_assoc (f : ℝ → ℝ → ℝ)
   -- Goal: 1 - f (f (1-u) (1-v)) (1-w) = 1 - f (1-u) (f (1-v) (1-w))
   rw [hassoc]
 
-/-- **Aczél's lemma (continuous associative operations):**
+/-- **Factor homogeneity (independence clause, paper `thm:kernel-composition`(vi)).**
 
-If `h : ℝ → ℝ → ℝ` is continuous, commutative, associative, has
-identity element 1 (`h(1,v) = v` and `h(u,1) = u`), and absorbing
-element 0 (`h(0,v) = 0` and `h(u,0) = 0`), then `h(u,v) = u * v`.
+For a binary operation `h` on affinities, factor homogeneity in the first
+argument is `h (t * u) v = t * h u v`. Physically, once the Born rule is
+available, `h` is the joint affinity (confusion probability) of two
+independently prepared subsystems; rescaling one subsystem's affinity by a
+factor `t` rescales the joint affinity by the same `t`, because the other
+subsystem's distinguishing test is decided independently. -/
+def FactorHomogeneous (h : ℝ → ℝ → ℝ) : Prop :=
+  ∀ t u v, h (t * u) v = t * h u v
 
-This is the key analytic step. The proof uses the fact that a continuous
-one-parameter semigroup of continuous maps `φ_u := h(u, ·)` on ℝ with
-`φ_1 = id` must satisfy `φ_u = u^(·)` by the Cauchy functional equation
-for continuous functions (see Aczél, "Lectures on Functional Equations
-and their Applications", Chapter 6).
+/-- **Independence pins multiplication (replaces the former Aczél axiom).**
 
-Formalizing this in Lean requires the theory of continuous solutions to
-Cauchy's functional equation and continuous one-parameter semigroups,
-which is beyond current Mathlib scope. We state it as an axiom with
-full documentation. -/
-axiom aczel_continuous_associative_is_mul
-    (h : ℝ → ℝ → ℝ)
-    (hcont : Continuous (Function.uncurry h))
-    (hcomm : ∀ u v, h u v = h v u)
-    (hassoc : ∀ u v w, h (h u v) w = h u (h v w))
-    (hid_left : ∀ v, h 1 v = v)
-    (hid_right : ∀ u, h u 1 = u)
-    (habs_left : ∀ v, h 0 v = 0)
-    (habs_right : ∀ u, h u 0 = 0) :
-    ∀ u v, h u v = u * v
+If `h` is factor-homogeneous and has left identity `1` (`h 1 v = v`), then
+`h u v = u * v`. Setting the scale `t := u` at the base point `1`,
+`h u v = h (u * 1) v = u * h 1 v = u * v`.
+
+This is the honest content of the paper's independence clause (vi): given
+per-argument homogeneity, multiplication of affinities follows in one line,
+with NO appeal to the strict t-norm classification and NO imported axiom.
+
+The previous version of this file stated an *unsound* axiom
+`aczel_continuous_associative_is_mul`, which claimed that continuity +
+commutativity + associativity + identity 1 + absorbing 0 already force
+multiplication. That is false: the strict t-norm generated by the Hamacher
+generator `φ(u) = u/(2 - u)` satisfies every one of those hypotheses, yet gives
+`h(1/2, 1/2) = 1/5 ≠ 1/4`. The genuinely missing ingredient is precisely the
+independence/homogeneity clause proved here, which the axiom silently smuggled
+in. Eliminating the axiom removes one imported classical assumption from the
+library. -/
+theorem mul_of_factor_homogeneous (h : ℝ → ℝ → ℝ)
+    (hhom : FactorHomogeneous h)
+    (hid_left : ∀ v, h 1 v = v) :
+    ∀ u v, h u v = u * v := by
+  intro u v
+  have h1 := hhom u 1 v
+  rw [mul_one, hid_left] at h1
+  exact h1
 
 -- ============================================================
 -- Partial Aczél: properties derivable without the continuous
@@ -219,9 +253,9 @@ axiom aczel_continuous_associative_is_mul
     so `h^n (a, a, ..., a)` is well-defined and acts like repeated
     multiplication in a commutative monoid structure.
 
-    This is the EASY part of Aczél's theorem; the hard part is
-    extending continuity to arbitrary reals. We formalize the easy
-    part here to document what's known without the full axiom. -/
+    This is the purely algebraic part of the t-norm structure; it does not
+    by itself determine `h` off the boundary. Multiplication is pinned
+    separately by the independence clause `mul_of_factor_homogeneous`. -/
 theorem aczel_associativity_power_well_defined
     (h : ℝ → ℝ → ℝ)
     (hassoc : ∀ u v w, h (h u v) w = h u (h v w))
@@ -271,9 +305,10 @@ theorem aczel_mul_on_zero_one (h : ℝ → ℝ → ℝ)
     tight against `aczel_mul_on_zero_one`: the boundary values are
     completely determined without any analytic machinery.
 
-    The hard part of Aczél — extending this to all of ℝ — requires
-    continuous Cauchy functional equation theory, which remains
-    axiomatized as `aczel_continuous_associative_is_mul` above. -/
+    Extending this from the boundary `{0,1}` to all of ℝ is supplied not
+    by the (false) claim that continuity + associativity suffice, but by the
+    independence clause `mul_of_factor_homogeneous` above, which pins
+    multiplication from factor homogeneity and the identity element. -/
 theorem aczel_boundary_determined (h : ℝ → ℝ → ℝ)
     (hid_left : ∀ v, h 1 v = v)
     (habs_left : ∀ v, h 0 v = 0)
@@ -292,92 +327,84 @@ theorem aczel_boundary_determined (h : ℝ → ℝ → ℝ)
       subst hv
       rw [hid_left]; ring
 
-/-- **Survival multiplicativity from associativity + continuity.**
+/-- **Survival multiplicativity from the independence clause.**
 
-Under the boundary conditions (identity, absorption) and associativity,
-continuity forces the survival transform to be multiplication.
+Under the identity boundary condition `f 0 y = y` (clause (i)) and factor
+homogeneity of the survival transform (clause (vi), independence), the survival
+transform is multiplication, so `1 - f x y = (1 - x)(1 - y)`.
 
-This combines the survival transform properties (proved above as lemmas)
-with Aczél's continuous associativity result. -/
-theorem survival_multiplicativity_from_assoc (f : ℝ → ℝ → ℝ)
-    (hcont : Continuous (Function.uncurry f))
-    (h0L : ∀ y, f 0 y = y) (h0R : ∀ x, f x 0 = x)
-    (h1L : ∀ y, f 1 y = 1) (h1R : ∀ x, f x 1 = 1)
-    (hsymm : ∀ x y, f x y = f y x)
-    (hassoc : ∀ x y z, f (f x y) z = f x (f y z)) :
+This replaces the former `survival_multiplicativity_from_assoc`, which routed
+through the unsound axiom `aczel_continuous_associative_is_mul`. The homogeneity
+route needs neither continuity nor associativity nor the strict t-norm
+classification; it is a direct consequence of independence and imports no
+axiom. -/
+theorem survival_multiplicativity_from_homogeneity (f : ℝ → ℝ → ℝ)
+    (h0L : ∀ y, f 0 y = y)
+    (hhom : FactorHomogeneous (survivalTransform f)) :
     ∀ x y, 1 - f x y = (1 - x) * (1 - y) := by
   intro x y
-  -- Use the survival transform h(u,v) = 1 - f(1-u, 1-v)
-  -- We proved: h has identity 1, absorbing 0, is commutative and associative
-  -- By Aczél's lemma: h(u,v) = u*v
-  -- Setting u = 1-x, v = 1-y: h(1-x, 1-y) = (1-x)*(1-y)
-  -- But h(1-x, 1-y) = 1 - f(x, y)
-  have h_is_mul := aczel_continuous_associative_is_mul (survivalTransform f)
-    -- continuity of h: h(u,v) = 1 - f(1-u, 1-v) is continuous if f is
-    (by
-      show Continuous (Function.uncurry (survivalTransform f))
-      -- uncurry (survivalTransform f) = fun p => 1 - f (1 - p.1) (1 - p.2)
-      -- = fun p => 1 - uncurry f (1 - p.1, 1 - p.2)
-      have heq : Function.uncurry (survivalTransform f) =
-          fun p : ℝ × ℝ => 1 - Function.uncurry f (1 - p.1, 1 - p.2) := by
-        ext ⟨u, v⟩; simp [Function.uncurry, survivalTransform]
-      rw [heq]
-      apply Continuous.sub continuous_const
-      have hpair : Continuous (fun p : ℝ × ℝ => (1 - p.1, 1 - p.2)) :=
-        Continuous.prodMk (continuous_const.sub continuous_fst)
-          (continuous_const.sub continuous_snd)
-      exact hcont.comp hpair)
-    (survivalTransform_comm f hsymm)
-    (survivalTransform_assoc f hassoc)
+  -- Independence pins the survival transform to multiplication:
+  --   h(u,v) = u * h(1,v) = u * v   (mul_of_factor_homogeneous)
+  have h_is_mul := mul_of_factor_homogeneous (survivalTransform f) hhom
     (survivalTransform_one_left f h0L)
-    (survivalTransform_one_right f h0R)
-    (survivalTransform_zero_left f h1L)
-    (survivalTransform_zero_right f h1R)
-  -- h_is_mul : ∀ u v, survivalTransform f u v = u * v
-  -- survivalTransform f (1-x) (1-y) = 1 - f (1-(1-x)) (1-(1-y)) = 1 - f x y
-  -- h_is_mul (1-x) (1-y) : survivalTransform f (1-x) (1-y) = (1-x)*(1-y)
-  -- We need: 1 - f x y = (1-x)*(1-y)
-  -- Since survivalTransform f (1-x) (1-y) = 1 - f x y (by definition, after simplification)
+  -- survivalTransform f (1-x) (1-y) = 1 - f x y (definition, after simplification)
   have hdef : survivalTransform f (1 - x) (1 - y) = 1 - f x y := by
     simp [survivalTransform]
-  linarith [h_is_mul (1 - x) (1 - y)]
+  have hval := h_is_mul (1 - x) (1 - y)
+  rw [hdef] at hval
+  exact hval
 
-/-- **Aczél's Theorem (kernel composition uniqueness):**
+/-- **Kernel composition uniqueness (independence route):**
 
-Any function `f : ℝ → ℝ → ℝ` satisfying the boundary conditions,
-symmetry, associativity, AND continuity must equal `kernel_compose`.
+Any function `f : ℝ → ℝ → ℝ` satisfying the boundary conditions, symmetry,
+associativity, continuity (clauses (i)--(v) of paper `thm:kernel-composition`)
+AND the independence clause (vi), factor homogeneity of the survival transform,
+must equal `kernel_compose`.
 
-This is the full uniqueness theorem for the kernel composition rule
-(Statement 106 of the paper). The proof proceeds via the survival
-transform:
+The pinning uses only the identity boundary `h0L` (clause (i)) and homogeneity
+`hhom` (clause (vi)); via `mul_of_factor_homogeneous`,
+`survivalTransform f u v = u * v`, hence `f x y = 1 - (1-x)(1-y)`.
 
-1. Define `h(u,v) = 1 - f(1-u, 1-v)` (survival coordinates)
-2. Show `h` is continuous, commutative, associative, with identity 1
-   and absorbing element 0
-3. By Aczél's continuous associativity theorem: `h(u,v) = u*v`
-4. Converting back: `f(x,y) = 1 - (1-x)(1-y) = kernel_compose(x,y)`
+Clauses (ii)--(v) (`_hcont`, `_h1L`, `_h1R`, `_h0R`, `_hsymm`, `_hassoc`) are
+retained as hypotheses so the statement matches the paper's characterization
+(the composition rule is the unique function satisfying (i)--(vi)), but they are
+not consumed by the proof. This reflects the corrected mathematics: clauses
+(i)--(v) alone admit the whole continuous strict t-norm family (e.g. the
+Hamacher product `T(1/2,1/2) = 1/5 ≠ 1/4`), and independence is what selects
+multiplication.
 
-The only non-constructive step is (3), which uses the `aczel_continuous_associative_is_mul`
-axiom — a standard result in functional equation theory stating that
-continuous commutative associative operations with identity must be
-multiplication (when the absorbing element is also present).
-
-**Axiom status:** The proof uses one axiom (`aczel_continuous_associative_is_mul`)
-which encodes a well-known theorem from Aczél's theory of functional equations.
-The axiom is sound (proved in standard references) but its full Lean formalization
-requires continuous Cauchy equation theory beyond current Mathlib. All other
-steps are fully verified. -/
+**Axiom status:** The proof imports NO axiom. The previous version routed
+through the unsound `aczel_continuous_associative_is_mul`, now deleted; running
+`#print axioms kernel_compose_is_unique` shows only the standard
+`propext`/`Classical.choice`/`Quot.sound`. -/
 theorem kernel_compose_is_unique (f : ℝ → ℝ → ℝ)
-    (hcont : Continuous (Function.uncurry f))
-    (h1L : ∀ y, f 1 y = 1)
-    (h1R : ∀ x, f x 1 = 1)
+    (_hcont : Continuous (Function.uncurry f))
+    (_h1L : ∀ y, f 1 y = 1)
+    (_h1R : ∀ x, f x 1 = 1)
     (h0L : ∀ y, f 0 y = y)
-    (h0R : ∀ x, f x 0 = x)
-    (hsymm : ∀ x y, f x y = f y x)
-    (hassoc : ∀ x y z, f (f x y) z = f x (f y z)) :
+    (_h0R : ∀ x, f x 0 = x)
+    (_hsymm : ∀ x y, f x y = f y x)
+    (_hassoc : ∀ x y z, f (f x y) z = f x (f y z))
+    (hhom : FactorHomogeneous (survivalTransform f)) :
     ∀ x y, f x y = kernel_compose x y := by
-  have hsurvival := survival_multiplicativity_from_assoc f hcont h0L h0R h1L h1R hsymm hassoc
+  have hsurvival := survival_multiplicativity_from_homogeneity f h0L hhom
   exact kernel_compose_unique_from_survival f hsurvival
+
+/-- The survival transform of `kernel_compose` is ordinary multiplication:
+    `survivalTransform kernel_compose u v = u * v`. -/
+theorem kernel_compose_survivalTransform (u v : ℝ) :
+    survivalTransform kernel_compose u v = u * v := by
+  simp only [survivalTransform, kernel_compose]; ring
+
+/-- **The intended solution satisfies clause (vi).** `kernel_compose` has a
+    factor-homogeneous survival transform, so the independence hypothesis of
+    `kernel_compose_is_unique` is met by `kernel_compose` itself; the
+    characterization is therefore non-vacuous (existence plus uniqueness). -/
+theorem kernel_compose_factor_homogeneous :
+    FactorHomogeneous (survivalTransform kernel_compose) := by
+  intro t u v
+  rw [kernel_compose_survivalTransform, kernel_compose_survivalTransform]
+  ring
 
 /-- Kernel composition for product states matches the formula. -/
 theorem kernel_product_states (KA KB : ℝ) :
@@ -933,16 +960,15 @@ theorem entanglement_gap (NA NB : ℕ) (hA : 2 ≤ NA) (hB : 2 ≤ NB) :
   omega
 
 -- ============================================================
--- Tensor Product Formalism (Reviewer Response)
+-- Tensor Product Formalism
 -- ============================================================
 
 /-!
 ### Tensor Product Structure for Composite Hilbert Spaces
 
-The reviewer noted: "No tensor product formalism — composite systems defined
-algebraically, not as actual tensor products."
-
-We address this by formalizing:
+Composite systems are defined above algebraically rather than as actual
+tensor products. This section supplies the tensor product formalism by
+formalizing:
 1. The equivalence `Fin NA × Fin NB ≃ Fin (NA * NB)` that identifies the
    composite index space with the tensor product index space.
 2. Product states as elementwise products under this identification.
@@ -1121,5 +1147,162 @@ theorem product_state_norm_sq_factorizes {NA NB : ℕ}
     (∑ i : Fin NA, Complex.normSq (ψA i)) *
     (∑ j : Fin NB, Complex.normSq (ψB j)) := by
   simp only [map_mul, Fintype.sum_prod_type, Fintype.sum_mul_sum]
+
+-- ============================================================
+-- Strict Monotonicity from Transport Consistency (paper v3, line 1668)
+-- ============================================================
+
+/-!
+### Strict Monotonicity from Transport Consistency
+
+Paper v3 line 1668 proves clause (iv) of `thm:kernel-composition` by
+the following argument: fix `y ∈ (0, 1)` and suppose
+`f(x_1, y) = f(x_2, y)` for `x_1 ≠ x_2`. Apply Transport Consistency
+(`thm:src-master`(T)) on the joint A×B space: equal joint K-values
+on `((a_1, b), (a_1', b'))` and `((a_2, b), (a_2', b'))` force the
+A-marginals (themselves K-evaluations factoring through the joint
+K-profile) to coincide, contradicting `K_A(a_1, a_1') ≠ K_A(a_2, a_2')`.
+
+We package this as: an associative, symmetric, continuous binary
+operation on [0,1] satisfying the standard boundary conditions and
+a *transport-consistency* hypothesis (equal output ⟹ equal first
+input given fixed second input in (0,1)) is strictly monotone in
+each argument on (0,1).
+
+The transport-consistency hypothesis is exactly the conclusion the
+paper extracts via (T) on the joint space. We do not re-derive (T)
+here (it is already proved as `SRC.T_transport_consistency_direct`);
+we factor through it.
+
+**Status of these lemmas (honest scope).** They verify that `kernel_compose`
+satisfies clause (iv), strict monotonicity, and that strict monotonicity
+follows from Transport Consistency plus monotonicity. This is a *consistency
+check* on the intended solution: clause (iv) is one of the hypotheses that
+characterize the strict t-norm family. It is NOT the clause that pins
+uniqueness. Uniqueness is forced by the independence clause (vi)
+(`mul_of_factor_homogeneous`, `survival_multiplicativity_from_homogeneity`),
+which selects multiplication from within the t-norm family; the strict
+monotonicity lemmas below are therefore not consumed by
+`kernel_compose_is_unique` and are retained only as verification that the
+solution meets clause (iv).
+-/
+
+/-- **Transport Consistency hypothesis on a binary operation** (paper
+    v3 line 1668). For each `y ∈ (0,1)`, if two inputs `x_1, x_2`
+    yield the same output `f(·, y)`, then `x_1 = x_2`. This is the
+    direct content of `thm:src-master`(T) applied to the joint A×B
+    K-profile: the joint kernel determines the A-marginal. -/
+def TransportConsistencyBinary (f : ℝ → ℝ → ℝ) : Prop :=
+  ∀ x₁ x₂ y, 0 < y → y < 1 → f x₁ y = f x₂ y → x₁ = x₂
+
+/-- **Strict monotonicity from Transport Consistency.**
+    Combined with the boundary conditions `f(0,y) = y`, `f(1,y) = 1`
+    (and the corresponding right-arg conditions), Transport Consistency
+    forces strict monotonicity in each argument on (0,1).
+
+    Argument: fix `y ∈ (0,1)`. The map `x ↦ f(x, y)` is monotone
+    (this requires a separate hypothesis or is implied by `f` being
+    a t-norm). With Transport Consistency, the map is also injective.
+    A monotone injective continuous function on an interval is
+    strictly monotone.
+
+    We state the cleanest direct consequence: under Transport
+    Consistency alone, equal outputs force equal inputs. Strict
+    monotonicity then follows from monotonicity + injectivity, which
+    is encoded in `kernel_compose_strict_mono_iff` below. -/
+theorem strict_monotone_from_transport
+    (f : ℝ → ℝ → ℝ)
+    (hT : TransportConsistencyBinary f)
+    (x₁ x₂ y : ℝ) (hy : 0 < y) (hy1 : y < 1) :
+    f x₁ y = f x₂ y → x₁ = x₂ :=
+  hT x₁ x₂ y hy hy1
+
+/-- **Concrete instance: `kernel_compose` satisfies Transport Consistency.**
+
+    The composition rule `f(x,y) = 1 - (1-x)(1-y)` is itself injective
+    in each argument when the other is in `(0,1)`: if
+    `1 - (1-x_1)(1-y) = 1 - (1-x_2)(1-y)`, then `(1-x_1)(1-y) = (1-x_2)(1-y)`,
+    and `(1-y) ≠ 0` (since `y < 1`) gives `1 - x_1 = 1 - x_2`, hence
+    `x_1 = x_2`.
+
+    This is the direct algebraic verification that the Transport
+    Consistency hypothesis holds for `kernel_compose`, completing
+    the link to the paper's strict-monotonicity argument. -/
+theorem kernel_compose_transport_consistency :
+    TransportConsistencyBinary kernel_compose := by
+  intro x₁ x₂ y hy hy1 h
+  -- h : kernel_compose x₁ y = kernel_compose x₂ y
+  -- ↔ 1 - (1 - x₁)(1 - y) = 1 - (1 - x₂)(1 - y)
+  simp only [kernel_compose] at h
+  -- h : 1 - (1 - x₁) * (1 - y) = 1 - (1 - x₂) * (1 - y)
+  have hprod : (1 - x₁) * (1 - y) = (1 - x₂) * (1 - y) := by linarith
+  have hy_ne : (1 - y) ≠ 0 := by intro hzero; linarith
+  have hsub : 1 - x₁ = 1 - x₂ := by
+    have := mul_right_cancel₀ hy_ne hprod
+    exact this
+  linarith
+
+/-- **`kernel_compose` is strictly monotone in the first argument
+    when the second is in `(0,1)`.**
+
+    For `y ∈ (0,1)` and `x_1 < x_2`, `kernel_compose x_1 y < kernel_compose x_2 y`.
+    Direct calculation: `1 - (1-x_1)(1-y) < 1 - (1-x_2)(1-y)` iff
+    `(1-x_2)(1-y) < (1-x_1)(1-y)` iff `1-x_2 < 1-x_1` (since `1-y > 0`),
+    iff `x_1 < x_2`. -/
+theorem kernel_compose_strict_mono_left (y : ℝ) (hy : 0 < y) (hy1 : y < 1) :
+    StrictMono (fun x => kernel_compose x y) := by
+  intro x₁ x₂ hlt
+  simp only [kernel_compose]
+  have hy_pos : 0 < 1 - y := by linarith
+  -- Goal: 1 - (1 - x₁) * (1 - y) < 1 - (1 - x₂) * (1 - y)
+  -- iff (1 - x₂) * (1 - y) < (1 - x₁) * (1 - y)
+  -- iff (1 - x₂) < (1 - x₁), i.e., x₁ < x₂.
+  nlinarith [hy_pos, hlt]
+
+/-- **`kernel_compose` is strictly monotone in the second argument
+    when the first is in `(0,1)`.** Symmetric to `kernel_compose_strict_mono_left`. -/
+theorem kernel_compose_strict_mono_right (x : ℝ) (hx : 0 < x) (hx1 : x < 1) :
+    StrictMono (fun y => kernel_compose x y) := by
+  intro y₁ y₂ hlt
+  simp only [kernel_compose]
+  have hx_pos : 0 < 1 - x := by linarith
+  nlinarith [hx_pos, hlt]
+
+/-- **Strict monotonicity equivalent to injectivity (under monotonicity).**
+
+    For a `Monotone` function on `ℝ`, `StrictMono` is equivalent to
+    `Function.Injective`. The paper's Transport Consistency argument
+    delivers injectivity (equal outputs ⟹ equal inputs); combining
+    with monotonicity from the framework's other axioms gives strict
+    monotonicity.
+
+    This packages the paper's v3 reasoning chain: Transport Consistency
+    (S-master clause T) + monotonicity (from f being a continuous
+    t-norm) ⟹ strict monotonicity. -/
+theorem strict_mono_of_mono_and_injective
+    {g : ℝ → ℝ} (hmono : Monotone g) (hinj : Function.Injective g) :
+    StrictMono g := by
+  intro a b hlt
+  have hle : g a ≤ g b := hmono hlt.le
+  rcases lt_or_eq_of_le hle with hlt' | heq
+  · exact hlt'
+  · exact absurd (hinj heq) (ne_of_lt hlt)
+
+/-- **Top-level package: strict monotonicity of `kernel_compose` from
+    monotonicity + Transport Consistency.**
+
+    Given `Monotone (fun x => kernel_compose x y)` (which holds
+    because `kernel_compose` is a continuous t-norm; not separately
+    proved here as it follows from the explicit formula) and the
+    Transport Consistency property `kernel_compose_transport_consistency`,
+    the strict-monotonicity conclusion of clause (iv) of
+    `thm:kernel-composition` (paper v3 line 1668) follows. -/
+theorem kernel_compose_strict_mono_from_transport
+    (y : ℝ) (hy : 0 < y) (hy1 : y < 1)
+    (hmono : Monotone (fun x => kernel_compose x y)) :
+    StrictMono (fun x => kernel_compose x y) :=
+  strict_mono_of_mono_and_injective hmono
+    (fun x₁ x₂ heq =>
+      kernel_compose_transport_consistency x₁ x₂ y hy hy1 heq)
 
 end QuantumRelational.Composite

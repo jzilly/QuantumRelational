@@ -24,7 +24,6 @@
   This forces f(x) = x, the Born rule. The metric compatibility route
   works at N = 2, unlike Gleason's theorem.
 
-  Tier 2.
   Lean status: fully-derived
 -/
 import QuantumRelational.BornRule

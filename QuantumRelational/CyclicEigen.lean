@@ -1,7 +1,9 @@
 /-
   QuantumRelational/CyclicEigen.lean
 
-  **`thm:complex`: Emergence of Complex Numbers** (eigenvalue part)
+  **Emergence of Complex Numbers** (eigenvalue part): the N-cycle
+  permutation has a non-real eigenvalue for N ≥ 3, an input to the
+  field-selection argument.
   **`lem:sheaf-complex`: Continuous Evolution Requires ℂ**
   **`thm:cyclic`: Cyclic Structure — G_dyn ≅ Z_N**
 
@@ -11,7 +13,7 @@
 
   The cyclic permutation generates a subgroup isomorphic to Z_N.
 
-  Tier 1: Uses Mathlib complex analysis and group theory.
+  Uses Mathlib complex analysis and group theory.
   Lean status: fully-derived
 -/
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle
@@ -95,7 +97,15 @@ theorem N2_eigenvalues_real :
 
 /-- **`lem:sheaf-complex` (summary):** For N ≥ 3, the cyclic permutation matrix has
     non-real eigenvalues, so the coefficient field must extend ℝ to ℂ.
-    Combined with Frobenius (Thm 44), this forces 𝕂 = ℂ. -/
+    Combined with Frobenius (Thm 44), this forces 𝕂 = ℂ.
+
+    This is one input to field selection: it says the *N-cycle's* spectrum is
+    non-real. That the admissible generator *is* the N-cycle in the first place
+    (nondegenerate-spectrum rigidity, Lemma `cyclic-rigidity`) is mechanized
+    separately in `CyclicRigidity.lean`
+    (`CyclicRigidity.nodup_iff_single_cycle`), and the two combine in
+    `CyclicRigidity.N_cycle_has_nonreal_root` and, at the algebra level, in
+    `Frobenius.finrank_ne_one_of_cube_root`. -/
 theorem complex_forced (N : ℕ) (hN : 3 ≤ N) :
     ∃ (k : Fin N), (rootOfUnity N k).im ≠ 0 :=
   ⟨⟨1, by omega⟩, nonreal_eigenvalue N hN⟩

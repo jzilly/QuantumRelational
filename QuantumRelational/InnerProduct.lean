@@ -18,7 +18,7 @@
   - The standard basis of ℂ^N is orthonormal and gives K(eᵢ,eⱼ) = 1 - δᵢⱼ
   - The inner product is the UNIQUE sesquilinear form with these properties
 
-  Tier 1: Uses Mathlib inner product spaces.
+  Uses Mathlib inner product spaces.
   Lean status: fully-derived (0 sorry)
 -/
 import QuantumRelational.Axioms

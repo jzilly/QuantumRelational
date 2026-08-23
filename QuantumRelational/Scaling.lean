@@ -11,7 +11,6 @@
   - Zeno survival floor: P_Zeno^min ~ 1/N²
   - Entropic uncertainty: H(B₁) + H(B₂) ≥ log₂ N
 
-  Tier 2.
   Lean status: fully-derived
 -/
 import Mathlib.Analysis.SpecialFunctions.Log.Basic

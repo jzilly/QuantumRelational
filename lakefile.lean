@@ -15,11 +15,16 @@ lean_lib QuantumRelational where
   roots := #[
     `QuantumRelational.Axioms,
     `QuantumRelational.SRC,
+    `QuantumRelational.SRCv2,
+    `QuantumRelational.ModelExistence,
+    `QuantumRelational.CovarianceNoGo,
+    `QuantumRelational.BinaryInsufficiency,
     `QuantumRelational.Basic,
     `QuantumRelational.ClassicalImports,
     `QuantumRelational.Parsimony,
     `QuantumRelational.SwapMatrix,
     `QuantumRelational.CyclicEigen,
+    `QuantumRelational.CyclicRigidity,
     `QuantumRelational.Frobenius,
     `QuantumRelational.Fourier,
     `QuantumRelational.InnerProduct,
@@ -30,6 +35,7 @@ lean_lib QuantumRelational where
     `QuantumRelational.CapacityHalting,
     `QuantumRelational.Schrodinger,
     `QuantumRelational.Composite,
+    `QuantumRelational.QubitRecovery,
     `QuantumRelational.Scaling,
     `QuantumRelational.Main,
     `QuantumRelational.AxiomCheck,
@@ -38,5 +44,9 @@ lean_lib QuantumRelational where
     `QuantumRelational.Paper2.CayleyGraph,
     `QuantumRelational.Paper2.IntegerDimension,
     `QuantumRelational.Paper2.EuclideanMetric,
-    `QuantumRelational.Paper2.DimensionThree
+    `QuantumRelational.Paper2.DimensionThree,
+    -- Paper 2, revision 2026-07-05: corrected chain
+    `QuantumRelational.Paper2.GrowthDegree,
+    `QuantumRelational.Paper2.DimensionSelection,
+    `QuantumRelational.Paper2.HomogeneityLaw
   ]

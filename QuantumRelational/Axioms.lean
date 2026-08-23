@@ -47,21 +47,30 @@
            (continuity of K is automatic in this topology, not an axiom).
 
     Axiom 2 (Universal Relationality):
-      (2a) Operational Completeness: K(x,y) = 0 ⟹ x = y
-              (now Theorem `thm:src-master`(O)).
+      (2a) K(x,y) = 0 ⟹ x = y
+              (Lean projection `thm:src-master`(O); on the paper side the
+              former clause "Operational Completeness" is now the
+              single-evaluation case of **Identity**).
       (2b) Transport Consistency: meaningful DOFs are K-comparable
               (now Theorem `thm:src-master`(T)).
       (2c) Basis Isotropy: symmetry group acts transitively on bases
               (now Theorem `thm:src-master`(B)).
 
-  Imperceptibility (`thm:src-master`(I)) is the eighth derived clause;
-  the v1 paper recorded it as an `(1c)`-style commitment, which is now
-  also a theorem.
+  The clause carried by the Lean projection `thm:src-master`(I) is the
+  one the current paper calls **Scale-Freeness** (K-image dense in
+  [0,1]); it was called *Imperceptibility* in earlier revisions, and the
+  v1 paper recorded it as an `(1c)`-style commitment. The Lean names are
+  unchanged. Paper side, the hierarchy now has six clauses (Identity,
+  Limit Completeness, Structural Leibniz (context form), Scale-Freeness,
+  Transport Consistency, Basis Isotropy); see `AxiomCheck.lean`'s header
+  or `PAPER_MAPPING.md` §3 for the full name correspondence.
 
   This Lean formalization captures the components that enter the
   mechanized proofs:
     - `K_refl`, `K_symm` encode the kernel definition
-    - `K_ident` (in Axiom1) corresponds to paper (2a) Operational Completeness
+    - `K_ident` (in Axiom1) corresponds to paper (2a), i.e. the
+      single-evaluation case of the paper's **Identity** clause
+      (formerly the separate clause "Operational Completeness")
     - `completeness` (in Axiom2) corresponds to paper (1b)(i) Identity
     - `saturation` (in Axiom2) is a basis-restricted form of paper (1b)(iii)
 
@@ -130,11 +139,14 @@ structure Axiom1 (α : Type*) extends BasisStructure α where
   /-- Basis elements are mutually perfectly distinguishable -/
   basis_distinguishable : ∀ (i j : Fin N), i ≠ j → K (basis i) (basis j) = 1
   -- Note: basis_self (K(b_i, b_i) = 0) is redundant with inherited K_refl.
-  /-- **Axiom (1c): Connectedness (Lean encoding of the paper's Imperceptibility commitment).**
+  /-- **Axiom (1c): Connectedness (Lean encoding of the paper's Scale-Freeness
+      commitment; the clause was called *Imperceptibility* in earlier
+      revisions).**
       The state space α is connected in the K-pseudometric topology
       `d(x, y) := ⨆ z, |K(x, z) - K(y, z)|`.
 
-      **Paper-Lean asymmetry.** The paper states (1c) as *Imperceptibility*:
+      **Paper-Lean asymmetry.** The paper states (1c) as *Scale-Freeness*
+      (the clause formerly named *Imperceptibility*):
       `K(α × α)` is dense in `[0,1]` (equivalently, the K-image equals
       `[0,1]`, since the closure of K(α × α) is closed in the compact unit
       interval). The Lean encoding takes the topologically equivalent
@@ -144,6 +156,24 @@ structure Axiom1 (α : Type*) extends BasisStructure α where
       and Connectedness are equivalent (paper Theorem
       `thm:imperceptibility-connectedness`); the choice between them is a
       presentation matter that does not affect any downstream Lean proof.
+
+      **Provenance of the topological content (paper §3, §4).** In the
+      current paper, scale-freeness ("N is the only scale", Axiom 1(ii))
+      is the primitive commitment, and its topological content is
+      *derived*: read on the symmetry group, "N is the only scale" is the
+      no-small-subgroups property (a nontrivial subgroup in an arbitrarily
+      small neighborhood of the identity would move states at a scale
+      beneath the capacity), which by Gleason-Yamabe makes `Aut(α, K)` a
+      Lie group and `α = G/H` a finite-dimensional manifold (paper
+      `thm:complexity-constraint`, regularity condition (R),
+      `rem:finite-dim-status`), hence connected
+      (`thm:imperceptibility-connectedness`). This Lean structure takes
+      that downstream consequence, connectedness, as its convenient
+      primitive; the no-small-subgroups -> Lie -> finite-dimensional ->
+      connected chain is the paper's prose derivation and is not
+      mechanized here (see the scope note in paper Appendix
+      `app:formal-verification`). The two views are the same equivalence.
+
       The Lean encoding takes connectedness as primitive because it is
       directly usable as a `ConnectedSpace` instance for topological proofs;
       no Lean theorem in this library consumes density of the K-image as a

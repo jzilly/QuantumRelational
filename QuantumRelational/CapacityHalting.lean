@@ -3,7 +3,7 @@
 
   **`thm:capacity-halting`: Capacity Halting Principle**
   **`lem:incompressibility`: Incompressibility of Deterministic Assignments**
-  **`thm:ks-bits`: Kochen-Specker Bit Count**
+  **`lem:ks-bits`: Kochen-Specker Bit Count**
 
   A deterministic hidden-variable model requires more storage
   than the system's capacity allows:
@@ -35,7 +35,7 @@
   which makes explicit that the input is observed experimental
   statistics, not the Born rule as derived in §6.
 
-  Tier 2: Information-theoretic counting (arithmetic step only).
+  Information-theoretic counting (arithmetic step only).
   Lean status: arithmetic inequalities fully proved with zero sorry.
 -/
 import Mathlib.Data.Nat.Log
@@ -102,11 +102,11 @@ theorem mub_overlap_uniform (N : ℕ) (hN : 0 < N) :
   have hN' : (N : ℝ) ≠ 0 := Nat.cast_ne_zero.mpr (by omega)
   rw [one_div, mul_inv_cancel₀ hN']
 
-/-- **`thm:ks-bits`:** Kochen-Specker contexts (M MUBs with N projectors
+/-- **`lem:ks-bits`:** Kochen-Specker contexts (M MUBs with N projectors
     each) contain O(N²) projectors total; the deterministic-assignment
     storage requirement is (M-1) log₂ N bits, scaling to Θ(N log₂ N)
     for prime-power N at the maximal M = N+1, which strictly exceeds
-    the available log₂ N capacity (paper Theorem `thm:ks-bits`).
+    the available log₂ N capacity (paper Theorem `lem:ks-bits`).
 
     This file proves the qualitatively-correct loose form: log₂ N < N²
     for N ≥ 3, since log₂ N < N (always) and N ≤ N² (for N ≥ 1). The

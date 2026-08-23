@@ -12,19 +12,21 @@
     picard_lindelof_unique, IsFinDimAssocDivAlgDim,
     frobenius_classification.
 
-  **Proved theorems (5+):** stone_generator, montgomery_zippin_generator,
-    schur_lemma, exp_skewHermitian_unitary, skewHermitian_generator_gives_hermitian.
+  **Proved theorems:** schur_lemma, exp_skewHermitian_unitary,
+    skewHermitian_generator_gives_hermitian, exp_skewHermitian_group,
+    exp_skewHermitian_id.
 
-    stone_generator and montgomery_zippin_generator now carry non-trivial
-    conclusions connecting the generator to the one-parameter group via
-    the matrix exponential. Specifically:
-    - montgomery_zippin_generator: A skew-Hermitian A generates a
-      one-parameter unitary group exp(t*A) (proved from Mathlib's
-      Matrix.exp_conjTranspose and Matrix.exp_neg).
-    - stone_generator: The corresponding H = iA is Hermitian
-      (proved from conjTranspose algebra).
+    These carry the reverse direction of Stone's theorem: a
+    skew-Hermitian A generates a one-parameter unitary group exp(t*A)
+    (proved from Mathlib's Matrix.exp_conjTranspose and Matrix.exp_neg),
+    and the corresponding H = iA is Hermitian (from conjTranspose
+    algebra).
 
-  Tier 3: Import as axiom, formalize later.
+    The former `stone_generator` and `montgomery_zippin_generator`
+    declarations (trivially witnessed by A = 0, with their U-hypotheses
+    unused) have been deleted; the generator-existence direction is now
+    an explicit hypothesis, `Schrodinger.HasHermitianGenerator`. See the
+    Stone section below.
 -/
 import Mathlib.Analysis.InnerProductSpace.Basic
 import Mathlib.LinearAlgebra.UnitaryGroup
@@ -152,84 +154,38 @@ U(t) = e^{-iHt}. This has two directions:
 
 **What IS proved here:** Direction (a) — the helper theorems
 `exp_skewHermitian_unitary`, `skewHermitian_generator_gives_hermitian`,
-and `exp_skewHermitian_group` are genuine, non-trivial results showing
-that the matrix exponential of a skew-Hermitian matrix is unitary.
+`exp_skewHermitian_group`, and `exp_skewHermitian_id` are genuine,
+non-trivial results showing that the matrix exponential of a
+skew-Hermitian matrix is a one-parameter unitary group.
 
-**What is NOT proved:** Direction (b) — connecting a given U(t) to its
-specific generator. The `stone_generator` theorem below takes U(t) as
-a hypothesis but the witness is A = 0 (all U-hypotheses are unused).
-The forward direction would require Mathlib's spectral theory for
-matrix logarithms, which is not yet available.
+**What is NOT proved, and is not asserted anywhere:** direction (b),
+connecting a given U(t) to its specific generator. Earlier revisions
+carried `stone_generator` and `montgomery_zippin_generator` here: they
+took U(t) as a hypothesis but were witnessed by A = 0 with every
+U-hypothesis unused, so as formal statements they were vacuous. Both
+have been **deleted**, together with the two Schrodinger-side interface
+statements that consumed them.
 
-**Why U appears in the signature:** Downstream consumers (Schrodinger.lean)
-call `stone_generator` and extract the Hermitian H. Changing the signature
-would break compilation. The mathematical gap is documented here. -/
+Mathematically the existence direction is elementary in finite
+dimension, and it is carried by the prose of the accompanying paper: a
+strongly continuous one-parameter subgroup of U(N) is automatically
+smooth, equals exp(t • U'(0)) by matrix Lie theory, and H := i U'(0) is
+Hermitian (paper Appendix `app:classical-theorems`; scope statement in
+Appendix `app:formal-verification`). The Lean-side obstruction is the
+absence of a Mathlib interface for extracting U'(0) from a one-parameter
+matrix group (equivalently, matrix-logarithm / functional-calculus
+support for `Matrix.exp`), not a mathematical gap. The conclusion is
+therefore exposed as the explicit hypothesis
+`QuantumRelational.Schrodinger.HasHermitianGenerator`, consumed by
+`Schrodinger.derivation_chain_of_hermitian_generator` and produced, in
+the reverse direction, by `Schrodinger.hasHermitianGenerator_exp`.
 
-/-- Existence of a Hermitian/skew-Hermitian generator pair.
-
-    **Honesty note:** The witness is A = 0. The hypotheses about U are
-    unused — this theorem does NOT extract the generator of the given U(t).
-    It proves the reverse direction of Stone's theorem: that skew-Hermitian
-    matrices generate unitary groups (via `exp_skewHermitian_unitary` etc.).
-
-    The forward direction (given U, find A with U(t) = exp(tA)) requires
-    matrix logarithm theory not yet in Mathlib.
-
-    U appears in the signature for downstream compatibility
-    (Schrodinger.lean extracts the Hermitian H from this result). -/
-theorem stone_generator (n : ℕ) (_hn : 1 ≤ n)
-    (U : ℝ → Matrix (Fin n) (Fin n) ℂ)
-    (_hunit : ∀ t, (U t).conjTranspose * U t = 1)
-    (_hgroup : ∀ s t, U (s + t) = U s * U t)
-    (_hid : U 0 = 1) :
-    ∃ (H A : Matrix (Fin n) (Fin n) ℂ),
-      H.conjTranspose = H ∧
-      A.conjTranspose = -A ∧
-      H = Complex.I • A ∧
-      (∀ t : ℝ, (exp ℂ ((t : ℂ) • A))ᴴ * exp ℂ ((t : ℂ) • A) = 1) ∧
-      (∀ s t : ℂ, exp ℂ ((s + t) • A) = exp ℂ (s • A) * exp ℂ (t • A)) ∧
-      exp ℂ ((0 : ℂ) • A) = 1 := by
-  refine ⟨Complex.I • 0, 0, ?_, by simp, by simp, ?_, ?_, ?_⟩
-  · -- H = i * 0 is Hermitian: use skewHermitian_generator_gives_hermitian
-    exact skewHermitian_generator_gives_hermitian 0 (by simp)
-  · -- exp(t * 0) is unitary for all t
-    exact exp_skewHermitian_unitary 0 (by simp)
-  · -- exp((s+t) * 0) = exp(s * 0) * exp(t * 0)
-    exact exp_skewHermitian_group 0
-  · -- exp(0 * 0) = 1
-    exact exp_skewHermitian_id 0
-
-/-! ### Montgomery-Zippin / Hilbert's Fifth Problem
-Reference: D. Montgomery and L. Zippin, "Topological Transformation
-Groups" (1955).
-
-The full Montgomery-Zippin theorem states that every locally compact
-topological group acting effectively on a manifold is a Lie group.
-A key consequence: continuous homomorphisms R → U(n) are smooth.
-
-**Same honesty caveat as `stone_generator`:** The witness is A = 0.
-The hypotheses about U are unused. See the Stone's theorem section
-above for a full explanation of the gap and its justification. -/
-
-/-- Montgomery-Zippin consequence: existence of a skew-Hermitian matrix
-    generating a one-parameter unitary group.
-
-    **Honesty note:** Same as `stone_generator` — witness is A = 0,
-    U-hypotheses are unused. See `stone_generator` docstring for details. -/
-theorem montgomery_zippin_generator (n : ℕ) (_hn : 1 ≤ n)
-    (U : ℝ → Matrix (Fin n) (Fin n) ℂ)
-    (_hunit : ∀ t, (U t).conjTranspose * U t = 1)
-    (_hgroup : ∀ s t, U (s + t) = U s * U t)
-    (_hid : U 0 = 1) :
-    ∃ A : Matrix (Fin n) (Fin n) ℂ,
-      A.conjTranspose = -A ∧
-      (∀ t : ℝ, (exp ℂ ((t : ℂ) • A))ᴴ * exp ℂ ((t : ℂ) • A) = 1) ∧
-      (∀ s t : ℂ, exp ℂ ((s + t) • A) = exp ℂ (s • A) * exp ℂ (t • A)) ∧
-      exp ℂ ((0 : ℂ) • A) = 1 := by
-  refine ⟨0, by simp, ?_, ?_, ?_⟩
-  · exact exp_skewHermitian_unitary 0 (by simp)
-  · exact exp_skewHermitian_group 0
-  · exact exp_skewHermitian_id 0
+The same remark covers **Montgomery-Zippin / Hilbert's Fifth Problem**
+(D. Montgomery and L. Zippin, "Topological Transformation Groups",
+1955), whose relevant consequence — continuous homomorphisms ℝ → U(n)
+are smooth — is exactly the smoothness half of that prose argument, and
+is likewise a prose-level classical input rather than a Lean
+declaration. -/
 
 /-! ### Kobayashi-Nomizu Uniqueness
 Reference: S. Kobayashi and K. Nomizu, "Foundations of Differential

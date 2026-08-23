@@ -1,0 +1,182 @@
+'QuantumRelational.Main.main_theorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Main.conclusion_i_parsimony' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Main.conclusion_ii_capacity_halting' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Main.conclusion_iii_complex_forced' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Main.conclusion_iv_born_rule' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Main.conclusion_v_n2_static' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.BornRule.ode_uniqueness_born_rule' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Parsimony.parsimony' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.CyclicEigen.complex_forced' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.CyclicEigen.N2_eigenvalues_real' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.CyclicRigidity.count_root_one_cyclePoly' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.CyclicRigidity.nodup_iff_single_cycle' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.CyclicRigidity.doubleTransposition_cycleType' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.CyclicRigidity.doubleTransposition_degenerate' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.CyclicRigidity.N_cycle_has_nonreal_root' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Frobenius.frobenius_forces_complex' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ QuantumRelational.ClassicalImports.frobenius_classification]
+'QuantumRelational.Frobenius.finrank_ne_one_of_cube_root' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Frobenius.complex_dimension_from_cube_root' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ QuantumRelational.ClassicalImports.frobenius_classification]
+'QuantumRelational.Frobenius.quaternion_excluded' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.CyclicEigen.cyclic_group_structure' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Composite.kernel_compose_is_unique' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.BornRuleN2.born_rule_n2' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.ClassicalImports.schur_lemma' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.ClassicalImports.exp_skewHermitian_unitary' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.MetricBridge.metric_bridge' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Schrodinger.schrodinger_derivation_chain' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ QuantumRelational.ClassicalImports.wigner_continuity_unitary]
+'QuantumRelational.FubiniStudy.fubini_study_unique' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ QuantumRelational.ClassicalImports.kobayashi_nomizu_uniqueness]
+'QuantumRelational.Schrodinger.stone_generator_unique_of_local_agreement' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ QuantumRelational.ClassicalImports.picard_lindelof_unique]
+'QuantumRelational.SRC.saturation_hierarchy' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.saturation_hierarchy_involutive' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.saturation_hierarchy_general' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.S1_identity' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.S2_completeness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.S3_basis_profile_symmetry' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.S3_basis_profile_symmetry_direct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.S4_structural_leibniz' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.I_imperceptibility' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.O_operational_completeness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.T_transport_consistency' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.B_basis_isotropy' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.definability_lemma' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.S1_identity_direct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.S2_completeness_direct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.T_transport_consistency_direct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.O_operational_completeness_direct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.I_imperceptibility_direct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.O_operational_completeness_metric' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.O_operational_completeness_dominates_d' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.SRC.S4_structural_leibniz_id' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.S4_structural_leibniz_direct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.S4_structural_leibniz_amalgam_involutive' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.SRC.amalgam_witness_involutive' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.KExtensionAmalgam' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.Amalgam.swapEquiv' depends on axioms: [Quot.sound]
+'QuantumRelational.SRC.Amalgam.swap_K_pres' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.Amalgam.swap_no_lift' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.Amalgam.swap_inl_cfg' depends on axioms: [Quot.sound]
+'QuantumRelational.SRC.B_basis_isotropy_direct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.B_basis_isotropy_direct_amalgam' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.B_basis_isotropy_permuted' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.B_basis_isotropy_via_orbit_definability' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.SRC.B_basis_isotropy_orbit_classifier' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.axiom2_from_SRC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.structural_leibniz_from_SRC' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.QubitRecovery.qubit_recovery' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.QubitRecovery.partialTraceE_pure_product' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.QubitRecovery.partialTraceE_kron' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.QubitRecovery.local_Born_rule' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.QubitRecovery.productForm_summands_commute' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.QubitRecovery.kron_unitary_unitary' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.QubitRecovery.qubit_recovery_capacity_threshold' depends on axioms: [propext, Quot.sound]
+'QuantumRelational.QubitRecovery.partialTraceE_mixed_purification' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Composite.kernel_compose_transport_consistency' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Composite.kernel_compose_strict_mono_left' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Composite.kernel_compose_strict_mono_right' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Composite.kernel_compose_strict_mono_from_transport' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Composite.strict_mono_of_mono_and_injective' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.SRC.src_forms_equivalent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.operational_from_info_theoretic' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.info_theoretic_from_operational' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRC.aut_invariant_definable_implies_S1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRCv2.S1_identity_from_C1' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRCv2.transitivity_from_C3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRCv2.two_point_homogeneity_from_C3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRCv2.pair_completeness_from_C3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRCv2.permutation_invariance_from_C3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.SRCv2.basis_isotropy_from_C3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.CovarianceNoGo.covariance_nogo' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.CovarianceNoGo.no_covariant_deterministic_assignment' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.BinaryInsufficiency.pairwise_overlaps_match' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.BinaryInsufficiency.no_unitary_extension' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.BinaryInsufficiency.no_antiunitary_extension' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.BinaryInsufficiency.no_extension' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.ModelExistence.model' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.ModelExistence.basisRay_isBasisFamily' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.ModelExistence.K_image_full' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.ModelExistence.limitCompleteness_model' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.ModelExistence.context_homogeneity_full_basis' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.ModelExistence.context_homogeneity_S3' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Paper2.GrowthDegree.GrowthRanks.classification_low' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Paper2.GrowthDegree.GrowthRanks.flatness_at_three' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Paper2.GrowthDegree.GrowthRanks.dichotomy_at_four' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Paper2.GrowthDegree.degree_heisenberg' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Paper2.GrowthDegree.heisenberg_excluded' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Paper2.DimensionSelection.heatKernel_summable_iff' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Paper2.DimensionSelection.fall_to_center' depends on axioms: [propext, Classical.choice, Quot.sound]
+'QuantumRelational.Paper2.DimensionSelection.no_collapse_at_three' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Paper2.DimensionSelection.unique_selfconsistent' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Paper2.DimensionSelection.selection_forces_flatness' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Paper2.DimensionSelection.heisenberg_at_four' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Paper2.HomogeneityLaw.invariant_constant_on_orbit' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Paper2.HomogeneityLaw.permRayEquiv_isKAutomorphism' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'QuantumRelational.Paper2.HomogeneityLaw.no_definable_vertex_distinction' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]

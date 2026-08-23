@@ -21,7 +21,7 @@
   conclusion (K' independent of λ) was baked into the hypothesis
   `extends_K`.
 
-  Tier 2: Requires careful axiom encoding.
+  Requires careful axiom encoding.
   Lean status: fully-derived (non-circular, 0 sorry)
 -/
 import QuantumRelational.Axioms
@@ -34,10 +34,17 @@ variable {α : Type*}
 -- Part 1: Operational Completeness (defined WITHOUT extensions)
 -- ============================================================
 
-/-- **Operational Completeness** (from Axiom 2):
+/-- **Operational Completeness** (Lean name; paper-side name: **Identity**,
+    clause of `thm:src-master`):
     A kernel K is operationally complete if K-equivalence implies
     physical identity. That is, if K(x, z) = K(x', z) for all z,
     then x and x' are the same physical state.
+
+    Note on names: this is the full-K-profile statement, which the paper
+    calls *Identity*; the paper's former separate clause "Operational
+    Completeness" is its single-evaluation case `K x y = 0 → x = y` and
+    was absorbed into Identity in the current revision. The Lean names in
+    this file are unchanged.
 
     This is a property of K alone — it makes no reference to
     hidden variable extensions. -/

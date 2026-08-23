@@ -9,7 +9,7 @@
   This provides an alternative construction of the inner product
   from the kernel K via Fourier analysis on ℤ/Nℤ.
 
-  Tier 1: Uses Mathlib complex exponentials and finite sums.
+  Uses Mathlib complex exponentials and finite sums.
   Lean status: fully-derived
 -/
 import Mathlib.Analysis.SpecialFunctions.Complex.Circle

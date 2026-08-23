@@ -26,7 +26,7 @@
   4. Verify that f = id satisfies the ODE and boundary conditions
   5. Conclude born_f = id as the unique metric-compatible assignment
 
-  Tier 1: ODE uniqueness argument.
+  ODE uniqueness argument.
   Lean status: c = 1 and f = id on [0,1] are PROVED.
     All former axioms have been eliminated (0 axioms remain).
   The former axiom `f_eq_id_of_eq_on_unit_interval` (extension to ℝ)
@@ -577,8 +577,8 @@ Since |c_k|² = ‖ψ k‖² for the k-th component of ψ in the standard
 basis, this is precisely the Born rule normalization condition:
   ∑_k |c_k|² = 1
 
-This was noted by the reviewer as "assumed, not derived". It is now
-derived from the Hilbert space norm structure. -/
+The normalization condition is derived here from the Hilbert space norm
+structure rather than assumed. -/
 theorem born_rule_normalization {N : ℕ} (ψ : EuclideanSpace ℂ (Fin N))
     (hψ : ‖ψ‖ = 1) :
     ∑ i : Fin N, ‖ψ i‖ ^ 2 = 1 := by

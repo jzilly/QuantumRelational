@@ -20,7 +20,7 @@
   The LHS is the squared distance from ψ to the ray through φ.
   For normalized ψ, this equals 1 - |⟨φ|ψ⟩|² = K(ψ,φ).
 
-  Tier 2: Taylor expansion K = g_FS + O(‖dψ‖³) fully proved (was axiom).
+  Taylor expansion K = g_FS + O(‖dψ‖³) fully proved (was axiom).
   Lean status: all theorems proved (0 sorry, 0 axiom in this file)
 -/
 import QuantumRelational.ClassicalImports

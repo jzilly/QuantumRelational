@@ -21,7 +21,7 @@
   Imports Paper 1's CapacityHalting module for the capacity definition
   and core inequalities.
 
-  Tier 2: Information-theoretic counting.
+  Information-theoretic counting.
   Lean status: fully-derived (no sorry/axiom).
 -/
 import QuantumRelational.CapacityHalting

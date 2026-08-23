@@ -24,7 +24,7 @@
      Paper 1 is the 1D case; Paper 2 extends to higher-dimensional
      lattices via products of cyclic groups.
 
-  Tier 2: Algebraic/combinatorial structure.
+  Algebraic/combinatorial structure.
   Lean status: fully-derived (no sorry/axiom).
 -/
 import Mathlib.GroupTheory.Perm.Basic

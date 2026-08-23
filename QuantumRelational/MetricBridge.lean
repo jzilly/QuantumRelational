@@ -18,7 +18,7 @@
   5. ODE uniqueness (Picard-Lindelöf) with f(0)=0, f(1)=1 forces f = id
   6. Therefore p_k = |c_k|² — the Born rule
 
-  Tier 2: Requires Fisher-Rao metric definition.
+  Requires Fisher-Rao metric definition.
   Lean status: core derivation chain formalized
 -/
 import QuantumRelational.FubiniStudy
