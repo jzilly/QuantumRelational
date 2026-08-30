@@ -5,7 +5,7 @@
   saturation hierarchy.**
 
   The revised paper (`2026_07_01_QuantumMechanicsFromFiniteGradedEquality.tex`)
-  restates Axiom 2 (Self-Referential Consistency) as three internal clauses:
+  states Axiom 2 (Self-Referentially Consistent Closure) through its three static clauses; the dynamical clause (C4)'s spectral content is `CyclicRigidity.lean`:
 
     (C1) Definability: every Aut-invariant predicate factors through K-profiles
          (paper Axiom `ax:relational`(C1); Lemma `lem:definability`).

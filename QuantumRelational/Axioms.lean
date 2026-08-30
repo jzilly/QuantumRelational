@@ -11,7 +11,7 @@
 
   In the v2 paper (`QuantumMechanicsFromFiniteGradedEquality.tex`), the
   framework has only TWO primitive axioms: `ax:finite` (finite capacity
-  N) and `ax:relational` (Self-Referential Consistency, SRC). The eight
+  N) and `ax:relational` (Self-Referentially Consistent Closure, SRC). The eight
   named sub-clauses (S1)--(S4), (I), (O), (T), (B) that previously
   appeared as separate axioms or sub-axioms are now THEOREMS, derived
   from SRC + finite capacity in the Master Theorem `thm:src-master`.

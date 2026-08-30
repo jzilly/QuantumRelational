@@ -31,9 +31,9 @@
 
   **SRC layer:**
   The paper has only two primitive axioms: `ax:finite` (finite
-  scale-free capacity N) and `ax:relational` (Self-Referential
-  Consistency, SRC), joined by the Self-Description principle
-  (`prin:self-description`), whose machine-checked spectral content is
+  scale-free capacity N) and `ax:relational` (Self-Referentially
+  Consistent Closure, SRC, clauses (C1)-(C4)); the dynamical clause
+  (C4)'s machine-checked spectral content is
   `CyclicRigidity.lean`. The derived saturation clauses are THEOREMS via
   `thm:src-master`.
 
