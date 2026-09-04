@@ -33,8 +33,8 @@
     θ_k = y_k / conj(x_k)) implementing the anchored swap x ↔ y fixing
     every standard-basis ray. This is clause (S3) of Theorem
     `thm:src-master` verified in the model, and the witness lies in the
-    antiunitary component of Aut, as the paper's Remark
-    `rem:context-boundary` says it must.
+    antiunitary component of Aut, as the paper's context-boundary
+    discussion (`sec:binary-insufficiency`) says it must.
 
   **Remaining gap (documented):** (C3) for *partial* contexts
   (orthonormal anchors of size < N, and the empty and singleton
@@ -550,8 +550,8 @@ clause (S3) of Theorem `thm:src-master` verified in the model): if `x`
 and `y` have equal componentwise moduli in the standard basis, an
 automorphism of the model fixes every standard-basis ray and swaps the
 rays of `x` and `y`. The witness is the antiunitary `D ∘ conj`; it lies
-in the antiunitary component of `Aut`, as Remark `rem:context-boundary`
-requires. -/
+in the antiunitary component of `Aut`, as the paper's context-boundary
+discussion (`sec:binary-insufficiency`) requires. -/
 theorem context_homogeneity_full_basis (x y : E N) (hx : x ≠ 0) (hy : y ≠ 0)
     (hmod : ∀ k, normSq (x k) = normSq (y k)) :
     ∃ g : Equiv.Perm (ℙ ℂ (E N)),
