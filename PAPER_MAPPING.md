@@ -2,7 +2,9 @@
 
 Reference: `QuantumMechanicsFromFiniteGradedEquality.tex` → `lean-verification/QuantumRelational/`
 
-Last updated: re-synced after the 2026-08/09 flow passes on the manuscript (presentation only; no mathematical statement changed). That revision:
+Last updated: re-synced after the 2026-09-04 conservative referee-fix pass (claims aligned with the ledger; no Lean-relevant mathematics changed). That pass: recounted the abstract to **two axioms** with uniqueness stated as "compatible with the composition of independent systems"; sub-labelled Axiom 1(i) as (i-a) capacity / (i-b) finite resolution, so condition (R) is billed as clause (i-b); re-billed the spectral form of (C4) as an input stated at the level of linear lifts; added a ledger row for the no-extra-distinctions commitment of capacity multiplicativity; added the axiom-free paper lemma `lem:perm-spectrum` (spectral rigidity of permutation lifts), which is exactly the matrix fact `CyclicRigidity.lean` checks; restricted Qubit Recovery clause (c) to projective measurements with POVMs via Naimark dilation; and reworded the formal-verification appendix opening to "sorry-free over the statements formalized" with the unformalized items named up front.
+
+Previous sync: after the 2026-08/09 flow passes on the manuscript (presentation only; no mathematical statement changed). That revision:
 
 - reordered §*Composite Systems and No-Cloning* (`sec:composite`) into dependency order: `thm:kernel-composition` now precedes `thm:capacity-mult` and `thm:tensor`;
 - wove several Remark environments into main-text prose and **retired their labels**: `rem:connection-triadic`, `rem:context-boundary`, `rem:triadic-counting`, `rem:independence-characterization`, `rem:nyquist-manifold`, `rem:cyclic-spacing-not-quantum` (rows below name the prose location instead);
